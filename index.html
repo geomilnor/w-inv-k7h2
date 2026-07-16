@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- 検索エンジンにインデックスさせない -->
+<meta name="robots" content="noindex, nofollow">
+<title>Wedding Invitation</title>
+
+<!--
+════════════════════════════════════════════════════════════════
+  ▼ 差し替えチェックリスト(公開前に必ずご確認ください)
+────────────────────────────────────────────────────────────────
+  1. お名前(新郎新婦)  …「SAMPLE」とコメントした箇所
+  2. 日付・受付時間      … ヒーロー / INFORMATION / カウントダウン(JS内 WEDDING_DATE)
+  3. 写真                … .photo-slot 内の <svg> を <img src="..."> に差し替え
+  4. Googleフォーム連携  … JS内 GOOGLE_FORM の formAction と entry ID(設定方法もコメント参照)
+  5. クイズの問題と答え  … JS内 QUIZ 配列
+  6. 写真アルバムのURL   … PHOTOセクションのリンク
+  7. 合言葉              … JS内 PASSWORD(現在 "ihara")
+  ※ 合言葉はブラウザ側JSでの簡易チェックです。閲覧の心理的ハードルを
+     上げる目的のもので、厳密なセキュリティ保護ではありません。
+════════════════════════════════════════════════════════════════
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Shippori+Mincho:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --ivory:      #F6F2E8;   /* 地色:象牙 */
+  --paper:      #FCFAF4;   /* カード面 */
+  --gold:       #A9873F;   /* アンティークゴールド */
+  --gold-light: #CBB170;
+  --wine:       #5E1722;   /* 基調のワインレッド(バラ) */
+  --wine-soft:  #7C2433;
+  --rose:       #5A1520;   /* バラの深紅(合言葉画面の地色) */
+  --rose-soft:  #7C2433;
+  --rose-line:  #D9A3A6;   /* バラ曲線の線色 */
+  --ink:        #38352C;
+  --ink-soft:   #6E6A5C;
+  --hairline:   rgba(169,135,63,.45);
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+html{ scroll-behavior:smooth; }
+
+body{
+  font-family:'Shippori Mincho', serif;
+  background:
+    repeating-linear-gradient( 45deg, rgba(169,135,63,.05) 0 1px, transparent 1px 30px),
+    repeating-linear-gradient(-45deg, rgba(169,135,63,.05) 0 1px, transparent 1px 30px),
+    var(--ivory);
+  color:var(--ink);
+  line-height:2;
+  font-size:15px;
+  letter-spacing:.06em;
+  -webkit-font-smoothing:antialiased;
+}
+
+.en{ font-family:'Cormorant Garamond', serif; letter-spacing:.14em; }
+
+/* ───────── 合言葉ゲート ───────── */
+#gate{
+  position:fixed; inset:0; z-index:1000;
+  background:radial-gradient(circle at 50% 38%, var(--rose-soft) 0%, var(--rose) 62%);
+  display:flex; align-items:center; justify-content:center;
+  padding:24px;
+  transition:opacity .8s ease, visibility .8s ease;
+}
+.gate-rose{
+  width:min(190px,48vw);
+  margin:0 auto 8px;
+  display:block;
+}
+.gate-rose path{
+  fill:none;
+  stroke-linecap:round;
+}
+@media (prefers-reduced-motion: no-preference){
+  .gate-rose path{
+    stroke-dasharray:var(--len);
+    stroke-dashoffset:var(--len);
+    animation:roseDraw 3.2s ease-out forwards;
+  }
+  .gate-rose path:nth-of-type(2){ animation-delay:.5s; }
+  .gate-rose path:nth-of-type(3){ animation-delay:1s; }
+  @keyframes roseDraw{ to{ stroke-dashoffset:0; } }
+}
+#gate.open{ opacity:0; visibility:hidden; }
+.gate-card{
+  width:min(420px,100%);
+  border:1px solid rgba(203,177,112,.55);
+  outline:1px solid rgba(203,177,112,.25);
+  outline-offset:6px;
+  padding:56px 32px;
+  text-align:center;
+  color:#EDE6D2;
+}
+.gate-card .en-title{
+  font-family:'Cormorant Garamond', serif;
+  font-size:26px; font-weight:500; letter-spacing:.32em;
+  text-indent:.32em;
+  color:var(--gold-light);
+}
+.gate-card p{ margin-top:18px; font-size:13px; color:#D8D2BD; }
+.gate-input{
+  margin-top:28px; display:flex; gap:0; justify-content:center;
+}
+.gate-input input{
+  flex:1; max-width:220px;
+  background:transparent;
+  border:none; border-bottom:1px solid rgba(203,177,112,.6);
+  color:#F3EDDD; font-family:inherit; font-size:16px;
+  letter-spacing:.2em; text-align:center;
+  padding:8px 4px; outline:none;
+}
+.gate-input input:focus{ border-bottom-color:var(--gold-light); }
+.gate-input input::placeholder{ color:rgba(216,210,189,.4); letter-spacing:.1em; }
+.gate-btn{
+  margin-top:30px;
+  background:transparent; color:var(--gold-light);
+  border:1px solid rgba(203,177,112,.6);
+  font-family:'Cormorant Garamond', serif;
+  font-size:14px; letter-spacing:.3em; text-indent:.3em;
+  padding:11px 38px; cursor:pointer;
+  transition:background .3s, color .3s;
+}
+.gate-btn:hover, .gate-btn:focus-visible{ background:var(--gold-light); color:var(--wine); }
+.gate-error{
+  margin-top:16px; font-size:12px; color:#F0D9A2;
+  min-height:1.6em; opacity:0; transition:opacity .3s;
+}
+.gate-error.show{ opacity:1; }
+
+/* ───────── 共通レイアウト ───────── */
+.sheet{
+  max-width:720px;
+  margin:0 auto;
+  padding:0 20px;
+}
+section{ padding:88px 0; }
+
+.eyebrow{
+  font-family:'Cormorant Garamond', serif;
+  font-size:13px; letter-spacing:.42em; text-indent:.42em;
+  color:var(--gold);
+  text-align:center;
+  text-transform:uppercase;
+}
+.section-title{
+  margin-top:10px;
+  text-align:center;
+  font-size:21px; font-weight:600; letter-spacing:.3em; text-indent:.3em;
+  color:var(--wine);
+}
+.mini-rose{
+  display:block;
+  width:160px; height:36px;
+  margin:22px auto 0;
+  color:var(--gold);          /* 線色(currentColor で描画) */
+}
+.mini-rose.on-dark{ color:var(--gold-light); }
+
+/* スクロールで浮かび上がる */
+.reveal{ opacity:0; transform:translateY(18px); transition:opacity .9s ease, transform .9s ease; }
+.reveal.in{ opacity:1; transform:none; }
+@media (prefers-reduced-motion: reduce){
+  html{ scroll-behavior:auto; }
+  .reveal{ opacity:1; transform:none; transition:none; }
+}
+
+/* ───────── ヒーロー ───────── */
+.hero{
+  min-height:100svh;
+  display:flex; align-items:center; justify-content:center;
+  padding:40px 20px;
+}
+.hero-frame{
+  width:min(680px,100%);
+  border:1px solid var(--hairline);
+  outline:1px solid var(--hairline);
+  outline-offset:7px;
+  background:var(--paper);
+  text-align:center;
+  padding:76px 28px 64px;
+  margin:8px;
+  position:relative;
+  overflow:hidden;
+}
+/* 背面にうっすら大きなバラ曲線(JSで描画) */
+.hero-rose-bg{
+  position:absolute; left:50%; top:46%;
+  width:min(560px,130%);
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+}
+.hero-frame > *:not(.hero-rose-bg){ position:relative; z-index:1; }
+/* 四隅の飾り(幾何学的なコーナーマーク) */
+.hero-frame::before, .hero-frame::after{
+  content:""; position:absolute; width:26px; height:26px; z-index:2;
+  border:0 solid var(--gold);
+}
+.hero-frame::before{ top:10px; left:10px; border-top-width:1px; border-left-width:1px; }
+.hero-frame::after{ bottom:10px; right:10px; border-bottom-width:1px; border-right-width:1px; }
+.monogram{
+  width:92px; height:92px;
+  margin:0 auto;
+  border:1px solid var(--gold);
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Cormorant Garamond', serif;
+  font-size:30px; font-style:italic; color:var(--gold);
+  cursor:pointer; user-select:none;
+  transition:transform .3s;
+}
+.monogram:hover{ transform:rotate(6deg); }
+.hero-sub{
+  margin-top:34px;
+  font-family:'Cormorant Garamond', serif;
+  font-size:13px; letter-spacing:.5em; text-indent:.5em;
+  color:var(--gold);
+  text-transform:uppercase;
+}
+.hero-names{
+  margin-top:22px;
+  font-family:'Cormorant Garamond', serif;
+  font-size:clamp(34px,7vw,52px);
+  font-weight:500; font-style:italic;
+  color:var(--wine);
+  line-height:1.3;
+}
+.hero-names .amp{ font-size:.6em; color:var(--gold); margin:0 .25em; }
+.hero-names-ja{
+  margin-top:14px; font-size:14px; letter-spacing:.4em; text-indent:.4em; color:var(--ink-soft);
+}
+.hero-photo{
+  width:min(440px,100%);
+  margin:38px auto 0;
+  border:1px solid var(--hairline);
+  padding:8px;
+  background:var(--paper);
+}
+.hero-photo svg, .hero-photo img{
+  width:100%; aspect-ratio:4/3; object-fit:cover; display:block;
+}
+.hero-date{
+  margin-top:40px;
+  font-family:'Cormorant Garamond', serif;
+  font-size:17px; letter-spacing:.28em; text-indent:.28em;
+  color:var(--ink);
+}
+.hero-venue{
+  margin-top:6px; font-size:13px; letter-spacing:.24em; text-indent:.24em; color:var(--ink-soft);
+}
+.hero-orn{ margin:36px auto 0; width:120px; display:block; }
+
+/* ───────── ご挨拶 ───────── */
+.greeting p{
+  text-align:center;
+  margin-top:34px;
+  font-size:15px;
+}
+.greeting .sign{
+  margin-top:40px;
+  text-align:center;
+  font-size:14px;
+  letter-spacing:.2em;
+}
+
+/* ───────── カウントダウン ───────── */
+.countdown{
+  background:
+    radial-gradient(circle at 50% 0%, var(--wine-soft) 0%, var(--wine) 68%);
+  border-top:1px solid var(--gold);
+  border-bottom:1px solid var(--gold);
+  color:#F0E4D6;
+  padding:64px 20px;
+}
+.countdown .eyebrow{ color:var(--gold-light); }
+.count-row{
+  margin-top:34px;
+  display:flex; justify-content:center; gap:clamp(18px,6vw,48px);
+}
+.count-cell{ text-align:center; }
+.count-num{
+  font-family:'Cormorant Garamond', serif;
+  font-size:clamp(38px,8vw,56px); font-weight:500;
+  color:#F3EDDD;
+  line-height:1.1;
+  font-variant-numeric:tabular-nums;
+}
+.count-label{
+  margin-top:6px;
+  font-family:'Cormorant Garamond', serif;
+  font-size:11px; letter-spacing:.3em; text-indent:.3em;
+  color:var(--gold-light);
+  text-transform:uppercase;
+}
+
+/* ───────── プロフィール ───────── */
+.profiles{ display:grid; gap:64px; margin-top:56px; }
+@media (min-width:640px){ .profiles{ grid-template-columns:1fr 1fr; gap:40px; } }
+.profile{ text-align:center; }
+.photo-slot{
+  width:min(240px,70%);
+  aspect-ratio:3/4;
+  margin:0 auto;
+  border:1px solid var(--hairline);
+  padding:8px;
+  background:var(--paper);
+}
+.photo-slot svg, .photo-slot img{
+  width:100%; height:100%; object-fit:cover; display:block;
+}
+.profile-role{
+  margin-top:24px;
+  font-family:'Cormorant Garamond', serif;
+  font-size:12px; letter-spacing:.4em; text-indent:.4em;
+  color:var(--gold); text-transform:uppercase;
+}
+.profile-name{
+  margin-top:8px;
+  font-size:19px; font-weight:600; letter-spacing:.22em;
+  color:var(--wine);
+}
+.profile-name-en{
+  font-family:'Cormorant Garamond', serif;
+  font-style:italic; font-size:15px; color:var(--ink-soft);
+  letter-spacing:.12em; margin-top:2px;
+}
+.profile-bio{
+  margin-top:16px; font-size:13.5px; line-height:2.1; color:var(--ink);
+  text-align:left;
+}
+.profile-word{
+  margin-top:18px;
+  border-top:1px solid var(--hairline);
+  padding-top:16px;
+  font-size:13px; color:var(--ink-soft);
+  text-align:left;
+}
+.profile-word b{ color:var(--gold); font-weight:500; font-size:12px; letter-spacing:.2em; display:block; margin-bottom:4px; }
+
+/* ───────── クイズ ───────── */
+.quiz-lead{ text-align:center; margin-top:30px; font-size:14px; color:var(--ink-soft); }
+.quiz-card{
+  margin-top:36px;
+  background:var(--paper);
+  border:1px solid var(--hairline);
+  padding:34px 26px;
+}
+.quiz-q{
+  font-size:15px; font-weight:600; color:var(--wine);
+  letter-spacing:.08em;
+}
+.quiz-q .qnum{
+  font-family:'Cormorant Garamond', serif;
+  font-style:italic; color:var(--gold); margin-right:10px; font-weight:500;
+}
+.quiz-opts{ margin-top:18px; display:grid; gap:10px; }
+@media (min-width:560px){ .quiz-opts{ grid-template-columns:1fr 1fr; } }
+.quiz-opt{
+  font-family:inherit; font-size:14px; letter-spacing:.06em;
+  background:transparent; color:var(--ink);
+  border:1px solid rgba(169,135,63,.5);
+  padding:12px 14px; cursor:pointer; text-align:center;
+  transition:background .25s, color .25s, border-color .25s;
+}
+.quiz-opt:hover:not(:disabled), .quiz-opt:focus-visible{ border-color:var(--wine); }
+.quiz-opt.correct{ background:var(--wine); color:#F3EDDD; border-color:var(--wine); }
+.quiz-opt.wrong{ opacity:.45; }
+.quiz-opt:disabled{ cursor:default; }
+.quiz-note{
+  margin-top:16px; font-size:13px; color:var(--ink-soft);
+  min-height:1.8em;
+}
+.quiz-score{
+  margin-top:28px; text-align:center; font-size:14px; color:var(--wine);
+  display:none;
+}
+.quiz-score.show{ display:block; }
+
+/* ───────── INFORMATION ───────── */
+.info-grid{ margin-top:52px; display:grid; gap:32px; }
+@media (min-width:640px){ .info-grid{ grid-template-columns:1fr 1fr; } }
+.info-card{
+  background:var(--paper);
+  border:1px solid var(--hairline);
+  padding:38px 28px;
+  text-align:center;
+}
+.info-kind{
+  font-family:'Cormorant Garamond', serif;
+  font-size:13px; letter-spacing:.4em; text-indent:.4em;
+  color:var(--gold); text-transform:uppercase;
+}
+.info-kind-ja{ margin-top:6px; font-size:17px; font-weight:600; letter-spacing:.3em; text-indent:.3em; color:var(--wine); }
+.info-body{ margin-top:20px; font-size:14px; line-height:2.2; }
+.info-body small{ display:block; font-size:12.5px; color:var(--ink-soft); }
+.map-wrap{
+  margin-top:36px;
+  border:1px solid var(--hairline);
+  padding:8px;
+  background:var(--paper);
+}
+.map-wrap iframe{ width:100%; height:340px; border:0; display:block; filter:grayscale(.25) sepia(.08); }
+.map-caption{ text-align:center; margin-top:18px; font-size:13px; color:var(--ink-soft); }
+.map-caption a{ color:var(--wine); }
+
+/* ───────── RSVP ───────── */
+.rsvp{ background:var(--paper); border-top:1px solid var(--hairline); border-bottom:1px solid var(--hairline); }
+.rsvp-lead{ text-align:center; margin-top:30px; font-size:14px; }
+.rsvp-lead small{ color:var(--ink-soft); font-size:12.5px; }
+form{ margin-top:44px; }
+.field{ margin-top:30px; }
+.field-label{
+  display:block;
+  font-size:13px; font-weight:600; letter-spacing:.18em;
+  color:var(--wine);
+}
+.field-label .req{
+  font-size:10px; color:var(--gold); border:1px solid var(--gold);
+  padding:1px 7px; margin-left:10px; letter-spacing:.15em; vertical-align:2px;
+}
+.attend-row{ display:flex; gap:14px; margin-top:14px; }
+.attend-row label{
+  flex:1; text-align:center; cursor:pointer;
+  border:1px solid rgba(169,135,63,.5);
+  padding:16px 8px;
+  font-size:15px; letter-spacing:.3em; text-indent:.3em;
+  transition:background .25s, color .25s;
+}
+.attend-row input{ position:absolute; opacity:0; pointer-events:none; }
+.attend-row input:checked + span{ }
+.attend-row label:has(input:checked){
+  background:var(--wine); color:#F3EDDD; border-color:var(--wine);
+}
+.attend-row label:has(input:focus-visible){ outline:2px solid var(--gold); outline-offset:2px; }
+input[type=text], input[type=email], input[type=tel], textarea, select{
+  width:100%;
+  margin-top:12px;
+  font-family:inherit; font-size:16px; letter-spacing:.06em; /* 16px未満だとiOSで自動ズームされるため */
+  color:var(--ink);
+  background:var(--ivory);
+  border:1px solid rgba(169,135,63,.5);
+  padding:14px;
+  outline:none;
+  border-radius:0;               /* iOSの角丸を打ち消し */
+  -webkit-appearance:none;
+}
+input[type=text]:focus, input[type=email]:focus, input[type=tel]:focus, textarea:focus, select:focus{ border-color:var(--wine); }
+select{ appearance:none; background-image:linear-gradient(45deg, transparent 50%, var(--gold) 50%), linear-gradient(135deg, var(--gold) 50%, transparent 50%); background-position:calc(100% - 20px) 50%, calc(100% - 14px) 50%; background-size:6px 6px; background-repeat:no-repeat; }
+textarea{ min-height:110px; resize:vertical; line-height:1.9; }
+.side-row{ display:flex; gap:14px; margin-top:12px; }
+.side-row label{
+  flex:1; text-align:center; cursor:pointer;
+  border:1px solid rgba(169,135,63,.5);
+  padding:12px 8px; font-size:13.5px; letter-spacing:.15em;
+  transition:background .25s, color .25s;
+}
+.side-row label:has(input:checked){ background:var(--wine); color:#F3EDDD; border-color:var(--wine); }
+.side-row input{ position:absolute; opacity:0; pointer-events:none; }
+.hint{ margin-top:8px; font-size:12px; color:var(--ink-soft); }
+.submit-btn{
+  display:block;
+  margin:52px auto 0;
+  background:var(--wine); color:#F3EDDD;
+  border:1px solid var(--wine);
+  font-family:'Cormorant Garamond', serif;
+  font-size:15px; letter-spacing:.35em; text-indent:.35em;
+  padding:16px 60px; cursor:pointer;
+  transition:background .3s, color .3s;
+}
+.submit-btn:hover, .submit-btn:focus-visible{ background:transparent; color:var(--wine); }
+.submit-btn:disabled{ opacity:.5; cursor:wait; }
+.form-done{
+  display:none;
+  margin-top:44px; text-align:center;
+  border:1px solid var(--hairline);
+  padding:48px 24px;
+}
+.form-done.show{ display:block; }
+.form-done .en-title{
+  font-family:'Cormorant Garamond', serif; font-style:italic;
+  font-size:24px; color:var(--gold);
+}
+.form-done p{ margin-top:14px; font-size:14px; }
+.form-error{ margin-top:18px; text-align:center; font-size:13px; color:#9C4A32; display:none; }
+.form-error.show{ display:block; }
+
+/* ───────── PHOTO ───────── */
+.photo-lead{ text-align:center; margin-top:30px; font-size:14px; }
+.photo-btn{
+  display:inline-block;
+  margin-top:30px;
+  font-family:'Cormorant Garamond', serif;
+  font-size:14px; letter-spacing:.3em; text-indent:.3em;
+  color:var(--wine); text-decoration:none;
+  border:1px solid var(--wine);
+  padding:14px 44px;
+  transition:background .3s, color .3s;
+}
+.photo-btn:hover, .photo-btn:focus-visible{ background:var(--wine); color:#F3EDDD; }
+.photo-center{ text-align:center; }
+
+/* ───────── スマホ最適化 ───────── */
+@media (max-width:560px){
+  section{ padding:64px 0; }
+  .hero{ padding:20px 12px; }
+  .hero-frame{ padding:56px 18px 48px; outline-offset:5px; }
+  .countdown{ padding:52px 16px; }
+  .quiz-card{ padding:28px 18px; }
+  .info-card{ padding:32px 20px; }
+  .map-wrap iframe{ height:280px; }
+  .submit-btn{ width:100%; padding:18px 0; }
+  .photo-btn{ display:block; margin-left:auto; margin-right:auto; max-width:320px; }
+}
+/* タップしやすい最小サイズを確保 */
+.attend-row label, .side-row label, .quiz-opt{ min-height:48px; display:flex; align-items:center; justify-content:center; }
+
+/* ───────── フッター ───────── */
+footer{
+  background:var(--wine);
+  color:#C9C3AE;
+  text-align:center;
+  padding:64px 20px 56px;
+  font-size:12px; letter-spacing:.2em;
+}
+footer .en-title{
+  font-family:'Cormorant Garamond', serif; font-style:italic;
+  font-size:22px; color:var(--gold-light); letter-spacing:.2em;
+}
+footer p{ margin-top:16px; }
+
+/* ───────── 隠しメッセージ(イースターエッグ) ───────── */
+#secret{
+  position:fixed; inset:0; z-index:900;
+  background:rgba(74,15,24,.95);
+  display:none; align-items:center; justify-content:center;
+  padding:24px;
+}
+#secret.show{ display:flex; }
+.secret-card{
+  width:min(460px,100%);
+  border:1px solid rgba(203,177,112,.6);
+  outline:1px solid rgba(203,177,112,.3); outline-offset:6px;
+  padding:52px 30px; text-align:center; color:#EDE6D2;
+}
+.secret-card .en-title{
+  font-family:'Cormorant Garamond', serif; font-style:italic;
+  font-size:22px; color:var(--gold-light);
+}
+.secret-card p{ margin-top:18px; font-size:13.5px; line-height:2.2; }
+.secret-card .formula{
+  font-family:'Cormorant Garamond', serif;
+  font-size:19px; margin-top:20px; color:var(--gold-light); letter-spacing:.05em;
+}
+.secret-close{
+  margin-top:30px;
+  background:transparent; color:var(--gold-light);
+  border:1px solid rgba(203,177,112,.6);
+  font-family:inherit; font-size:12px; letter-spacing:.25em;
+  padding:10px 32px; cursor:pointer;
+}
+.secret-close:hover{ background:var(--gold-light); color:var(--wine); }
+</style>
+</head>
+<body>
+
+<!-- ═══════════ 合言葉ゲート ═══════════ -->
+<div id="gate" role="dialog" aria-modal="true" aria-label="合言葉の入力">
+  <div class="gate-card">
+    <!-- バラ曲線 r = cos(kθ)(rhodonea curve)をJSで描画します -->
+    <svg class="gate-rose" id="gate-rose" viewBox="0 0 200 200" aria-hidden="true"></svg>
+    <div class="en-title">INVITATION</div>
+    <p>招待状に記載の合言葉をご入力ください</p>
+    <div class="gate-input">
+      <input type="password" id="gate-pass" placeholder="合言葉" autocomplete="off" aria-label="合言葉">
+    </div>
+    <button class="gate-btn" id="gate-open">OPEN</button>
+    <div class="gate-error" id="gate-error">合言葉が違うようです</div>
+  </div>
+</div>
+
+<!-- ═══════════ ヒーロー ═══════════ -->
+<header class="hero">
+  <div class="hero-frame">
+    <!-- 背面のバラ曲線ウォーターマーク(JSで描画) -->
+    <svg class="hero-rose-bg" id="hero-rose-bg" viewBox="0 0 400 400" aria-hidden="true"></svg>
+    <!-- モノグラム(7回クリックで隠しメッセージ。イニシャルはお名前に合わせて変更) -->
+    <div class="monogram" id="monogram" title="">K<span style="font-size:.6em;margin:0 2px;">&amp;</span>H</div>
+    <div class="hero-sub">Wedding Invitation</div>
+    <!-- ▼▼ SAMPLE:お名前を差し替えてください ▼▼ -->
+    <div class="hero-names en">Keisuke <span class="amp">&amp;</span> Hanako</div>
+    <div class="hero-names-ja">井原 圭介 ・ 山田 花子</div>
+    <!-- ▲▲ SAMPLE ▲▲ -->
+
+    <!-- ふたりの写真 -->
+    <div class="hero-photo">
+      <!-- ▼▼ ここを <img src="couple.jpg" alt="ふたりの写真"> に差し替え ▼▼ -->
+      <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ふたりの写真(サンプル)">
+        <rect width="400" height="300" fill="#EDE7D6"/>
+        <circle cx="160" cy="120" r="34" fill="#C9BD9C"/>
+        <path d="M105 300 Q105 200 160 200 Q215 200 215 300 Z" fill="#C9BD9C"/>
+        <circle cx="248" cy="128" r="30" fill="#D3C4A5"/>
+        <path d="M200 300 Q200 208 248 208 Q296 208 296 300 Z" fill="#D3C4A5"/>
+        <rect x="10" y="10" width="380" height="280" fill="none" stroke="#A9873F" stroke-width="1"/>
+        <text x="200" y="282" text-anchor="middle" font-size="13" fill="#8A8064" font-family="serif">COUPLE PHOTO</text>
+      </svg>
+      <!-- ▲▲ 差し替えここまで ▲▲ -->
+    </div>
+
+    <div class="hero-date en">2026.11.28 SAT</div>
+    <div class="hero-venue">帝国ホテル 東京</div>
+    <svg class="hero-orn" viewBox="0 0 120 14" aria-hidden="true">
+      <line x1="0" y1="7" x2="46" y2="7" stroke="#A9873F" stroke-width="1"/>
+      <line x1="74" y1="7" x2="120" y2="7" stroke="#A9873F" stroke-width="1"/>
+      <path d="M60 1 L66 7 L60 13 L54 7 Z" fill="none" stroke="#A9873F" stroke-width="1"/>
+    </svg>
+  </div>
+</header>
+
+<!-- ═══════════ ご挨拶 ═══════════ -->
+<section class="greeting">
+  <div class="sheet reveal">
+    <div class="eyebrow">Greeting</div>
+    <h2 class="section-title">ご挨拶</h2>
+    <svg class="mini-rose" viewBox="0 0 160 36" aria-hidden="true"></svg>
+    <p>
+      謹啓<br>
+      皆さまにおかれましては<br>
+      ますますご清祥のこととお慶び申し上げます<br><br>
+      このたび 私たちは結婚式を挙げることとなりました<br>
+      日頃お世話になっている皆さまに<br>
+      感謝の気持ちをお伝えするとともに<br>
+      ささやかな披露の宴を催したく存じます<br><br>
+      ご多用中 誠に恐縮ではございますが<br>
+      ぜひご出席いただきたく ご案内申し上げます<br>
+      謹白
+    </p>
+    <!-- ▼▼ SAMPLE:お名前を差し替えてください ▼▼ -->
+    <p class="sign">井原 圭介<br>山田 花子</p>
+    <!-- ▲▲ SAMPLE ▲▲ -->
+  </div>
+</section>
+
+<!-- ═══════════ カウントダウン ═══════════ -->
+<section class="countdown">
+  <div class="sheet reveal">
+    <div class="eyebrow">Countdown</div>
+    <svg class="mini-rose on-dark" viewBox="0 0 160 36" aria-hidden="true"></svg>
+    <div class="count-row" id="count-row" aria-label="結婚式までのカウントダウン">
+      <div class="count-cell"><div class="count-num" id="cd-days">---</div><div class="count-label">Days</div></div>
+      <div class="count-cell"><div class="count-num" id="cd-hours">--</div><div class="count-label">Hours</div></div>
+      <div class="count-cell"><div class="count-num" id="cd-mins">--</div><div class="count-label">Minutes</div></div>
+      <div class="count-cell"><div class="count-num" id="cd-secs">--</div><div class="count-label">Seconds</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ プロフィール ═══════════ -->
+<section>
+  <div class="sheet reveal">
+    <div class="eyebrow">Profile</div>
+    <h2 class="section-title">新郎新婦のご紹介</h2>
+    <svg class="mini-rose" viewBox="0 0 160 36" aria-hidden="true"></svg>
+
+    <div class="profiles">
+      <!-- 新郎 -->
+      <div class="profile">
+        <div class="photo-slot">
+          <!-- ▼▼ ここを <img src="groom.jpg" alt="新郎の写真"> に差し替え ▼▼ -->
+          <svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="新郎の写真(サンプル)">
+            <rect width="300" height="400" fill="#EDE7D6"/>
+            <circle cx="150" cy="150" r="52" fill="#C9BD9C"/>
+            <path d="M70 400 Q70 270 150 270 Q230 270 230 400 Z" fill="#C9BD9C"/>
+            <rect x="12" y="12" width="276" height="376" fill="none" stroke="#A9873F" stroke-width="1"/>
+            <text x="150" y="376" text-anchor="middle" font-size="14" fill="#8A8064" font-family="serif">GROOM PHOTO</text>
+          </svg>
+          <!-- ▲▲ 差し替えここまで ▲▲ -->
+        </div>
+        <div class="profile-role">Groom</div>
+        <!-- ▼▼ SAMPLE:新郎プロフィールを差し替えてください ▼▼ -->
+        <div class="profile-name">井原 圭介</div>
+        <div class="profile-name-en">Keisuke Ihara</div>
+        <p class="profile-bio">
+          1990年生まれ 埼玉県出身<br>
+          大学では数学(微分幾何学)を専攻<br>
+          現在は大学の経営企画部門に勤務<br>
+          趣味は料理と温泉めぐり<br>
+          休日は関東近郊への小さな旅を楽しんでいます
+        </p>
+        <div class="profile-word">
+          <b>ひとこと</b>
+          人生という多様体の上で いちばん美しい測地線に出会えました 当日皆さまにお会いできることを心より楽しみにしています
+        </div>
+        <!-- ▲▲ SAMPLE ▲▲ -->
+      </div>
+
+      <!-- 新婦 -->
+      <div class="profile">
+        <div class="photo-slot">
+          <!-- ▼▼ ここを <img src="bride.jpg" alt="新婦の写真"> に差し替え ▼▼ -->
+          <svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="新婦の写真(サンプル)">
+            <rect width="300" height="400" fill="#F0E9DC"/>
+            <circle cx="150" cy="150" r="52" fill="#D3C4A5"/>
+            <path d="M70 400 Q70 270 150 270 Q230 270 230 400 Z" fill="#D3C4A5"/>
+            <rect x="12" y="12" width="276" height="376" fill="none" stroke="#A9873F" stroke-width="1"/>
+            <text x="150" y="376" text-anchor="middle" font-size="14" fill="#8A8064" font-family="serif">BRIDE PHOTO</text>
+          </svg>
+          <!-- ▲▲ 差し替えここまで ▲▲ -->
+        </div>
+        <div class="profile-role">Bride</div>
+        <!-- ▼▼ SAMPLE:新婦プロフィールを差し替えてください ▼▼ -->
+        <div class="profile-name">山田 花子</div>
+        <div class="profile-name-en">Hanako Yamada</div>
+        <p class="profile-bio">
+          1992年生まれ 東京都出身<br>
+          会社員として勤務しています<br>
+          趣味は読書とカフェめぐり<br>
+          最近はふたりで訪れる温泉宿の<br>
+          開拓に夢中です
+        </p>
+        <div class="profile-word">
+          <b>ひとこと</b>
+          おいしいごはんと笑顔の絶えない家庭を築いていきたいと思います 当日お会いできるのを楽しみにしております
+        </div>
+        <!-- ▲▲ SAMPLE ▲▲ -->
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ ふたりのことクイズ ═══════════ -->
+<section style="padding-top:0;">
+  <div class="sheet reveal">
+    <div class="eyebrow">Quiz</div>
+    <h2 class="section-title">ふたりのこと どこまでご存知?</h2>
+    <svg class="mini-rose" viewBox="0 0 160 36" aria-hidden="true"></svg>
+    <p class="quiz-lead">
+      披露宴までの予習にどうぞ<br>
+      全問正解の方には 当日ふたりからちょっとした景品があるかもしれません
+    </p>
+    <div id="quiz-root"></div>
+    <div class="quiz-score" id="quiz-score"></div>
+  </div>
+</section>
+
+<!-- ═══════════ INFORMATION ═══════════ -->
+<section style="padding-top:0;">
+  <div class="sheet reveal">
+    <div class="eyebrow">Information</div>
+    <h2 class="section-title">挙式・披露宴のご案内</h2>
+    <svg class="mini-rose" viewBox="0 0 160 36" aria-hidden="true"></svg>
+
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="info-kind">Ceremony</div>
+        <div class="info-kind-ja">挙式</div>
+        <!-- ▼▼ SAMPLE:時刻を差し替えてください ▼▼ -->
+        <div class="info-body">
+          2026年11月28日(土)<br>
+          午前11時より<br>
+          <small>受付 午前10時30分</small>
+          <small style="margin-top:10px;">帝国ホテル 東京 本館<br>東京都千代田区内幸町1-1-1</small>
+        </div>
+        <!-- ▲▲ SAMPLE ▲▲ -->
+      </div>
+      <div class="info-card">
+        <div class="info-kind">Reception</div>
+        <div class="info-kind-ja">披露宴</div>
+        <!-- ▼▼ SAMPLE:時刻を差し替えてください ▼▼ -->
+        <div class="info-body">
+          2026年11月28日(土)<br>
+          午後0時30分より<br>
+          <small>受付 午後0時</small>
+          <small style="margin-top:10px;">帝国ホテル 東京 本館 宴会場<br>(会場名は当日ご案内いたします)</small>
+        </div>
+        <!-- ▲▲ SAMPLE ▲▲ -->
+      </div>
+    </div>
+
+    <div class="map-wrap">
+      <iframe
+        src="https://www.google.com/maps?q=%E5%B8%9D%E5%9B%BD%E3%83%9B%E3%83%86%E3%83%AB%E6%9D%B1%E4%BA%AC&output=embed"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        title="帝国ホテル東京の地図"></iframe>
+    </div>
+    <p class="map-caption">
+      JR「有楽町駅」日比谷口より徒歩5分 / 地下鉄「日比谷駅」A13出口より徒歩3分<br>
+      <a href="https://www.google.com/maps/search/%E5%B8%9D%E5%9B%BD%E3%83%9B%E3%83%86%E3%83%AB%E6%9D%B1%E4%BA%AC" target="_blank" rel="noopener">Googleマップで開く</a>
+    </p>
+  </div>
+</section>
+
+<!-- ═══════════ RSVP(出欠のご返事) ═══════════ -->
+<section class="rsvp" id="rsvp">
+  <div class="sheet reveal">
+    <div class="eyebrow">R.S.V.P.</div>
+    <h2 class="section-title">出欠のご返事</h2>
+    <svg class="mini-rose" viewBox="0 0 160 36" aria-hidden="true"></svg>
+    <p class="rsvp-lead">
+      お手数ではございますが<br>
+      <!-- ▼▼ SAMPLE:締切日を差し替えてください ▼▼ -->
+      <strong>2026年10月17日(土)</strong>までにご返信くださいますよう<br>
+      <!-- ▲▲ SAMPLE ▲▲ -->
+      お願い申し上げます<br>
+      <small>※ご回答内容は新郎新婦のみが確認いたします</small>
+    </p>
+
+    <form id="rsvp-form" novalidate>
+      <div class="field">
+        <span class="field-label">ご出欠 <span class="req">必須</span></span>
+        <div class="attend-row" role="radiogroup" aria-label="ご出欠">
+          <label><input type="radio" name="attend" value="ご出席" required><span>ご出席</span></label>
+          <label><input type="radio" name="attend" value="ご欠席"><span>ご欠席</span></label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="f-name">お名前 <span class="req">必須</span></label>
+        <input type="text" id="f-name" name="name" autocomplete="name" required>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="f-kana">ふりがな <span class="req">必須</span></label>
+        <input type="text" id="f-kana" name="kana" required>
+      </div>
+
+      <div class="field">
+        <span class="field-label">ゲスト区分 <span class="req">必須</span></span>
+        <div class="side-row" role="radiogroup" aria-label="ゲスト区分">
+          <label><input type="radio" name="side" value="新郎側" required><span>新郎側</span></label>
+          <label><input type="radio" name="side" value="新婦側"><span>新婦側</span></label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="f-zip">郵便番号 <span class="req">必須</span></label>
+        <input type="text" id="f-zip" name="zip" inputmode="numeric" autocomplete="postal-code" placeholder="例:100-0011" required>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="f-pref">都道府県 <span class="req">必須</span></label>
+        <select id="f-pref" name="pref" autocomplete="address-level1" required>
+          <option value="" selected disabled>選択してください</option>
+          <option>北海道</option><option>青森県</option><option>岩手県</option><option>宮城県</option>
+          <option>秋田県</option><option>山形県</option><option>福島県</option><option>茨城県</option>
+          <option>栃木県</option><option>群馬県</option><option>埼玉県</option><option>千葉県</option>
+          <option>東京都</option><option>神奈川県</option><option>新潟県</option><option>富山県</option>
+          <option>石川県</option><option>福井県</option><option>山梨県</option><option>長野県</option>
+          <option>岐阜県</option><option>静岡県</option><option>愛知県</option><option>三重県</option>
+          <option>滋賀県</option><option>京都府</option><option>大阪府</option><option>兵庫県</option>
+          <option>奈良県</option><option>和歌山県</option><option>鳥取県</option><option>島根県</option>
+          <option>岡山県</option><option>広島県</option><option>山口県</option><option>徳島県</option>
+          <option>香川県</option><option>愛媛県</option><option>高知県</option><option>福岡県</option>
+          <option>佐賀県</option><option>長崎県</option><option>熊本県</option><option>大分県</option>
+          <option>宮崎県</option><option>鹿児島県</option><option>沖縄県</option><option>海外</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="f-address">ご住所 <span class="req">必須</span></label>
+        <input type="text" id="f-address" name="address" autocomplete="street-address" placeholder="市区町村・番地・建物名" required>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="f-email">メールアドレス <span class="req">必須</span></label>
+        <input type="email" id="f-email" name="email" autocomplete="email" placeholder="例:example@example.com" required>
+        <p class="hint">ご連絡が必要な際に使用いたします</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="f-tel">お電話番号 <span class="req">必須</span></label>
+        <input type="tel" id="f-tel" name="tel" inputmode="tel" autocomplete="tel" placeholder="例:090-1234-5678" required>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="f-allergy">食物アレルギー</label>
+        <input type="text" id="f-allergy" name="allergy" placeholder="例:えび かに そば など">
+        <p class="hint">お食事をご用意する際に配慮いたします 該当がなければ空欄で結構です</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="f-message">ふたりへのメッセージ</label>
+        <textarea id="f-message" name="message" placeholder="ご自由にお書きください"></textarea>
+      </div>
+
+      <button type="submit" class="submit-btn" id="submit-btn">SEND</button>
+      <p class="form-error" id="form-error">未入力の必須項目があります ご確認ください</p>
+    </form>
+
+    <div class="form-done" id="form-done">
+      <div class="en-title">Thank you</div>
+      <p>ご返信ありがとうございました<br>当日お会いできることを楽しみにしております</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ お写真のお願い ═══════════ -->
+<section>
+  <div class="sheet reveal photo-center">
+    <div class="eyebrow">Photo</div>
+    <h2 class="section-title">お写真の募集</h2>
+    <svg class="mini-rose" viewBox="0 0 160 36" aria-hidden="true"></svg>
+    <p class="photo-lead">
+      ふたりとの思い出のお写真をお持ちでしたら<br>
+      ぜひお寄せください<br>
+      当日のプロフィールムービーや会場装飾に<br>
+      使わせていただきたく存じます<br><br>
+      また 当日お撮りいただいたお写真も<br>
+      こちらのアルバムへ共有いただけますと幸いです
+    </p>
+    <!-- ▼▼ SAMPLE:GoogleドライブやLINEアルバム等の共有URLに差し替えてください ▼▼ -->
+    <a class="photo-btn" href="https://example.com/photo-album" target="_blank" rel="noopener">SHARE PHOTOS</a>
+    <!-- ▲▲ SAMPLE ▲▲ -->
+  </div>
+</section>
+
+<!-- ═══════════ フッター ═══════════ -->
+<footer>
+  <svg class="mini-rose on-dark" viewBox="0 0 160 36" aria-hidden="true" style="margin-bottom:22px; margin-top:0;"></svg>
+  <div class="en-title">Keisuke &amp; Hanako</div>
+  <p>
+    当日皆さまにお会いできることを<br>
+    心より楽しみにしております
+  </p>
+</footer>
+
+<!-- ═══════════ 隠しメッセージ ═══════════ -->
+<div id="secret" role="dialog" aria-modal="true" aria-label="隠しメッセージ">
+  <div class="secret-card">
+    <div class="en-title">You found it.</div>
+    <!-- ▼▼ SAMPLE:隠しメッセージは自由に書き換えてください ▼▼ -->
+    <p>
+      モノグラムを7回もクリックしてくださったあなたへ<br>
+      ふたりの結婚を 数学的に表現すると──
+    </p>
+    <p class="formula">∫<sub>M</sub> K dA + ∫<sub>∂M</sub> k<sub>g</sub> ds = 2πχ(M)</p>
+    <p>
+      どんなに曲がりくねった道のりでも<br>
+      全体として見れば 美しく閉じている(ガウス・ボネの定理)<br>
+      ふたりの歩みも きっとそういうものでありますように<br><br>
+      このメッセージを見つけたことを 当日こっそり新郎に伝えてみてください
+    </p>
+    <!-- ▲▲ SAMPLE ▲▲ -->
+    <button class="secret-close" id="secret-close">とじる</button>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════════
+   設定(ここを書き換えるだけで主要な内容を変更できます)
+════════════════════════════════════════════════════════════ */
+
+/* 合言葉(小文字・大文字は区別しません) */
+const PASSWORD = "ihara";
+
+/* 挙式日時(カウントダウン用)。形式: 年, 月-1, 日, 時, 分
+   ※月は 0始まり(0=1月, 2=3月)なのでご注意ください */
+const WEDDING_DATE = new Date(2026, 10, 28, 11, 0, 0); /* 2026年11月28日 11:00 */
+
+/* ─────────────────────────────────────────────
+   Googleフォーム連携の設定方法
+   1. Googleフォームを作成し、次の質問を「記述式/ラジオボタン」で用意
+      ご出欠 / お名前 / ふりがな / ゲスト区分 / アレルギー / メッセージ
+   2. フォーム右上「︙」→「事前入力したURLを取得」を選び、
+      各項目に適当な文字を入れて「リンクを取得」
+   3. 取得したURLの「entry.数字=」の数字部分が各項目のIDです
+   4. 下の formAction は、フォームの公開URLの
+      「/viewform」を「/formResponse」に変えたものを指定します
+─────────────────────────────────────────────── */
+const GOOGLE_FORM = {
+  formAction: "https://docs.google.com/forms/d/e/XXXXXXXXXXXXXXXX/formResponse", // ←差し替え
+  entries: {
+    attend:  "entry.1111111111", // ご出欠          ←差し替え
+    name:    "entry.2222222222", // お名前          ←差し替え
+    kana:    "entry.3333333333", // ふりがな        ←差し替え
+    side:    "entry.4444444444", // ゲスト区分      ←差し替え
+    zip:     "entry.5555555551", // 郵便番号        ←差し替え
+    pref:    "entry.5555555552", // 都道府県        ←差し替え
+    address: "entry.5555555553", // ご住所          ←差し替え
+    email:   "entry.5555555554", // メールアドレス  ←差し替え
+    tel:     "entry.5555555556", // お電話番号      ←差し替え
+    allergy: "entry.5555555555", // アレルギー      ←差し替え
+    message: "entry.6666666666"  // メッセージ      ←差し替え
+  }
+};
+
+/* クイズ(問題・選択肢・正解番号(0始まり)・解説は自由に編集してください) */
+const QUIZ = [
+  {
+    q: "ふたりが初めて出会った場所は?",
+    opts: ["友人の結婚式", "職場", "温泉旅館", "書店の数学書コーナー"],
+    answer: 0,
+    note: "正解は「友人の結婚式」。まさか自分たちの番が来るとは…(※サンプルです 実際のエピソードに書き換えてください)"
+  },
+  {
+    q: "新郎が学生時代に夢中になっていた学問は?",
+    opts: ["天文学", "微分幾何学", "考古学", "経済学"],
+    answer: 1,
+    note: "正解は「微分幾何学」。曲がった空間を研究していたのに 恋愛には最短距離で一直線でした"
+  },
+  {
+    q: "ふたりの共通の趣味は?",
+    opts: ["登山", "映画鑑賞", "温泉めぐり", "マラソン"],
+    answer: 2,
+    note: "正解は「温泉めぐり」。関東近郊の温泉はかなり制覇しつつあります おすすめがあればぜひ当日教えてください"
+  },
+  {
+    q: "プロポーズの場所はどこだったでしょう?",
+    opts: ["自宅の食卓", "夜景の見えるレストラン", "旅先の露天風呂の帰り道", "初デートの場所"],
+    answer: 1,
+    note: "正解は「夜景の見えるレストラン」(※サンプルです 実際のエピソードに書き換えてください)"
+  }
+];
+
+/* ════════════════════════════════════════════════════════════
+   以下はロジック(基本的に編集不要)
+════════════════════════════════════════════════════════════ */
+
+/* ── バラ曲線(rhodonea curve: r = R·cos(kθ))の描画 ──
+   合言葉画面・区切り飾り・ヒーロー背面に共通で使う「幾何学的なバラ」。
+   k=5 で花びら5枚のバラになります(奇数のとき k 枚)。 */
+const NS = "http://www.w3.org/2000/svg";
+
+function rosePathD(R, k, cx, cy, rot){
+  const steps = 720;
+  let d = "";
+  for (let i = 0; i <= steps; i++){
+    const t = (i / steps) * Math.PI;          /* kが奇数なら θ∈[0,π] で一周 */
+    const r = R * Math.cos(k * t);
+    const x = cx + r * Math.cos(t + rot);
+    const y = cy + r * Math.sin(t + rot);
+    d += (i === 0 ? "M" : "L") + x.toFixed(2) + " " + y.toFixed(2);
+  }
+  return d + "Z";
+}
+function addPath(svg, d, stroke, w, opacity){
+  const p = document.createElementNS(NS, "path");
+  p.setAttribute("d", d);
+  p.setAttribute("stroke", stroke);
+  p.setAttribute("stroke-width", w);
+  p.setAttribute("fill", "none");
+  p.setAttribute("stroke-linecap", "round");
+  if (opacity != null) p.setAttribute("opacity", opacity);
+  svg.appendChild(p);
+  return p;
+}
+
+/* 合言葉画面のバラ */
+(function(){
+  const svg = document.getElementById("gate-rose");
+  if (!svg) return;
+  const layers = [
+    { R: 88, k: 5, rot: -Math.PI / 2,              stroke: "#D9A3A6", w: 1.3 }, /* 外側:ローズピンク */
+    { R: 62, k: 5, rot: -Math.PI / 2 + Math.PI/5,  stroke: "#CBB170", w: 1.1 }, /* 中間:ゴールド(花びらを互い違いに) */
+    { R: 34, k: 5, rot: -Math.PI / 2,              stroke: "#E8CFC4", w: 1.0 }  /* 内側:淡いピンク */
+  ];
+  layers.forEach(l => {
+    const p = addPath(svg, rosePathD(l.R, l.k, 100, 100, l.rot), l.stroke, l.w);
+    p.style.setProperty("--len", p.getTotalLength());
+  });
+  const dot = document.createElementNS(NS, "circle");
+  dot.setAttribute("cx", 100); dot.setAttribute("cy", 100); dot.setAttribute("r", 2.4);
+  dot.setAttribute("fill", "#CBB170");
+  svg.appendChild(dot);
+})();
+
+/* 各セクションの区切り飾り(小さなバラ+左右の罫線) */
+(function(){
+  document.querySelectorAll(".mini-rose").forEach(svg => {
+    addPath(svg, "M4 18 L56 18", "currentColor", 1);
+    addPath(svg, "M104 18 L156 18", "currentColor", 1);
+    addPath(svg, "M56 18 l4 -3 l4 3 l-4 3 Z", "currentColor", 1);   /* 罫線端の菱形 */
+    addPath(svg, "M96 18 l4 -3 l4 3 l-4 3 Z", "currentColor", 1);
+    addPath(svg, rosePathD(15, 5, 80, 18, -Math.PI / 2), "currentColor", 1);
+  });
+})();
+
+/* ヒーロー背面のウォーターマーク(大きなバラ曲線をごく薄く) */
+(function(){
+  const svg = document.getElementById("hero-rose-bg");
+  if (!svg) return;
+  addPath(svg, rosePathD(190, 5, 200, 200, -Math.PI / 2), "#A9873F", 1, .10);
+  addPath(svg, rosePathD(132, 5, 200, 200, -Math.PI / 2 + Math.PI/5), "#7C2433", 1, .08);
+  addPath(svg, rosePathD(76,  5, 200, 200, -Math.PI / 2), "#A9873F", 1, .10);
+})();
+
+/* ── 合言葉ゲート ── */
+(function(){
+  const gate = document.getElementById("gate");
+  const input = document.getElementById("gate-pass");
+  const btn = document.getElementById("gate-open");
+  const err = document.getElementById("gate-error");
+
+  if (sessionStorage.getItem("gateOpen") === "1") {
+    gate.classList.add("open");
+  } else {
+    input.focus();
+  }
+
+  function tryOpen(){
+    if (input.value.trim().toLowerCase() === PASSWORD.toLowerCase()) {
+      sessionStorage.setItem("gateOpen", "1");
+      gate.classList.add("open");
+    } else {
+      err.classList.add("show");
+      input.value = "";
+      input.focus();
+    }
+  }
+  btn.addEventListener("click", tryOpen);
+  input.addEventListener("keydown", e => { if (e.key === "Enter") tryOpen(); });
+})();
+
+/* ── スクロールで浮かび上がる ── */
+(function(){
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+  }, { threshold: .12 });
+  document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+})();
+
+/* ── カウントダウン ── */
+(function(){
+  const $d = document.getElementById("cd-days"),
+        $h = document.getElementById("cd-hours"),
+        $m = document.getElementById("cd-mins"),
+        $s = document.getElementById("cd-secs");
+  function tick(){
+    const diff = WEDDING_DATE - new Date();
+    if (diff <= 0) { $d.textContent = "0"; $h.textContent = "0"; $m.textContent = "0"; $s.textContent = "0"; return; }
+    $d.textContent = Math.floor(diff / 864e5);
+    $h.textContent = Math.floor(diff % 864e5 / 36e5);
+    $m.textContent = Math.floor(diff % 36e5 / 6e4);
+    $s.textContent = Math.floor(diff % 6e4 / 1e3);
+    setTimeout(tick, 1000);
+  }
+  tick();
+})();
+
+/* ── クイズ ── */
+(function(){
+  const root = document.getElementById("quiz-root");
+  const scoreEl = document.getElementById("quiz-score");
+  let answered = 0, correct = 0;
+
+  QUIZ.forEach((item, qi) => {
+    const card = document.createElement("div");
+    card.className = "quiz-card";
+    card.innerHTML =
+      '<div class="quiz-q"><span class="qnum">Q' + (qi + 1) + '.</span>' + item.q + '</div>' +
+      '<div class="quiz-opts"></div>' +
+      '<div class="quiz-note" aria-live="polite"></div>';
+    const optsEl = card.querySelector(".quiz-opts");
+    const noteEl = card.querySelector(".quiz-note");
+
+    item.opts.forEach((opt, oi) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "quiz-opt";
+      b.textContent = opt;
+      b.addEventListener("click", () => {
+        card.querySelectorAll(".quiz-opt").forEach((x, xi) => {
+          x.disabled = true;
+          if (xi === item.answer) x.classList.add("correct");
+          else if (xi === oi) x.classList.add("wrong");
+        });
+        if (oi === item.answer) correct++;
+        noteEl.textContent = (oi === item.answer ? "◎ 正解! " : "残念… ") + item.note;
+        answered++;
+        if (answered === QUIZ.length) {
+          scoreEl.textContent = "あなたの正解数:" + correct + " / " + QUIZ.length +
+            (correct === QUIZ.length ? " ── 全問正解!ふたりのことをよくご存知ですね" : " ── 続きは当日の披露宴で");
+          scoreEl.classList.add("show");
+        }
+      });
+      optsEl.appendChild(b);
+    });
+    root.appendChild(card);
+  });
+})();
+
+/* ── RSVPフォーム → Googleフォーム送信 ── */
+(function(){
+  const form = document.getElementById("rsvp-form");
+  const btn = document.getElementById("submit-btn");
+  const done = document.getElementById("form-done");
+  const errEl = document.getElementById("form-error");
+
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    errEl.classList.remove("show");
+
+    if (!form.reportValidity()) { errEl.classList.add("show"); return; }
+
+    const fd = new FormData();
+    const v = name => (form.elements[name].value || "").trim();
+    fd.append(GOOGLE_FORM.entries.attend,  form.elements["attend"].value);
+    fd.append(GOOGLE_FORM.entries.name,    v("name"));
+    fd.append(GOOGLE_FORM.entries.kana,    v("kana"));
+    fd.append(GOOGLE_FORM.entries.side,    form.elements["side"].value);
+    fd.append(GOOGLE_FORM.entries.zip,     v("zip"));
+    fd.append(GOOGLE_FORM.entries.pref,    v("pref"));
+    fd.append(GOOGLE_FORM.entries.address, v("address"));
+    fd.append(GOOGLE_FORM.entries.email,   v("email"));
+    fd.append(GOOGLE_FORM.entries.tel,     v("tel"));
+    fd.append(GOOGLE_FORM.entries.allergy, v("allergy"));
+    fd.append(GOOGLE_FORM.entries.message, v("message"));
+
+    btn.disabled = true;
+    try {
+      if (GOOGLE_FORM.formAction.includes("XXXX")) {
+        console.warn("GOOGLE_FORM.formAction が未設定です。設定するまで回答は記録されません。");
+      } else {
+        /* Googleフォームはクロスオリジンのため no-cors で送信(応答は読めませんが記録されます) */
+        await fetch(GOOGLE_FORM.formAction, { method: "POST", mode: "no-cors", body: fd });
+      }
+      form.style.display = "none";
+      done.classList.add("show");
+      done.scrollIntoView({ behavior: "smooth", block: "center" });
+    } catch (err) {
+      errEl.textContent = "送信に失敗しました お手数ですが時間をおいて再度お試しください";
+      errEl.classList.add("show");
+      btn.disabled = false;
+    }
+  });
+})();
+
+/* ── イースターエッグ:モノグラムを7回クリック ── */
+(function(){
+  const mono = document.getElementById("monogram");
+  const secret = document.getElementById("secret");
+  const close = document.getElementById("secret-close");
+  let count = 0, timer = null;
+  mono.addEventListener("click", () => {
+    count++;
+    clearTimeout(timer);
+    timer = setTimeout(() => { count = 0; }, 2500);
+    if (count >= 7) { count = 0; secret.classList.add("show"); }
+  });
+  close.addEventListener("click", () => secret.classList.remove("show"));
+  secret.addEventListener("click", e => { if (e.target === secret) secret.classList.remove("show"); });
+})();
+</script>
+</body>
+</html>

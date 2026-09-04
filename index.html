@@ -15,9 +15,8 @@
   2. 日付・受付時間      … ヒーロー / INFORMATION / カウントダウン(JS内 WEDDING_DATE)
   3. 写真                … .photo-slot 内の <svg> を <img src="..."> に差し替え
   4. Googleフォーム連携  … JS内 GOOGLE_FORM の formAction と entry ID(設定方法もコメント参照)
-  5. クイズの問題と答え  … JS内 QUIZ 配列
-  6. 写真アルバムのURL   … JS内 PHOTO_ALBUM_URL(全ボタンに一括反映)
-  7. 合言葉              … JS内 PASSWORD(現在 "ihara")
+  5. 写真アルバムのURL   … JS内 PHOTO_ALBUM_URL(全ボタンに一括反映)
+  6. 合言葉              … JS内 PASSWORD(現在 "ihara")
   ※ 合言葉はブラウザ側JSでの簡易チェックです。閲覧の心理的ハードルを
      上げる目的のもので、厳密なセキュリティ保護ではありません。
 ════════════════════════════════════════════════════════════════
@@ -344,45 +343,6 @@ section{ padding:88px 0; }
 }
 .profile-word b{ color:var(--gold); font-weight:500; font-size:12px; letter-spacing:.2em; display:block; margin-bottom:4px; }
 
-/* ───────── クイズ ───────── */
-.quiz-lead{ text-align:center; margin-top:30px; font-size:14px; color:var(--ink-soft); }
-.quiz-card{
-  margin-top:36px;
-  background:var(--paper);
-  border:1px solid var(--hairline);
-  padding:34px 26px;
-}
-.quiz-q{
-  font-size:15px; font-weight:600; color:var(--wine);
-  letter-spacing:.08em;
-}
-.quiz-q .qnum{
-  font-family:'Cormorant Garamond', serif;
-  font-style:italic; color:var(--gold); margin-right:10px; font-weight:500;
-}
-.quiz-opts{ margin-top:18px; display:grid; gap:10px; }
-@media (min-width:560px){ .quiz-opts{ grid-template-columns:1fr 1fr; } }
-.quiz-opt{
-  font-family:inherit; font-size:14px; letter-spacing:.06em;
-  background:transparent; color:var(--ink);
-  border:1px solid rgba(169,135,63,.5);
-  padding:12px 14px; cursor:pointer; text-align:center;
-  transition:background .25s, color .25s, border-color .25s;
-}
-.quiz-opt:hover:not(:disabled), .quiz-opt:focus-visible{ border-color:var(--wine); }
-.quiz-opt.correct{ background:var(--wine); color:#F3EDDD; border-color:var(--wine); }
-.quiz-opt.wrong{ opacity:.45; }
-.quiz-opt:disabled{ cursor:default; }
-.quiz-note{
-  margin-top:16px; font-size:13px; color:var(--ink-soft);
-  min-height:1.8em;
-}
-.quiz-score{
-  margin-top:28px; text-align:center; font-size:14px; color:var(--wine);
-  display:none;
-}
-.quiz-score.show{ display:block; }
-
 /* ───────── INFORMATION ───────── */
 .info-grid{ margin-top:52px; display:grid; gap:32px; }
 @media (min-width:640px){ .info-grid{ grid-template-columns:1fr 1fr; } }
@@ -512,14 +472,13 @@ textarea{ min-height:110px; resize:vertical; line-height:1.9; }
   .hero{ padding:20px 12px; }
   .hero-frame{ padding:56px 18px 48px; outline-offset:5px; }
   .countdown{ padding:52px 16px; }
-  .quiz-card{ padding:28px 18px; }
   .info-card{ padding:32px 20px; }
   .map-wrap iframe{ height:280px; }
   .submit-btn{ width:100%; padding:18px 0; }
   .photo-btn{ display:block; margin-left:auto; margin-right:auto; max-width:320px; }
 }
 /* タップしやすい最小サイズを確保 */
-.attend-row label, .side-row label, .quiz-opt{ min-height:48px; display:flex; align-items:center; justify-content:center; }
+.attend-row label, .side-row label{ min-height:48px; display:flex; align-items:center; justify-content:center; }
 
 /* ───────── フッター ───────── */
 footer{
@@ -535,7 +494,7 @@ footer .en-title{
 }
 footer p{ margin-top:16px; }
 
-/* ───────── 隠しメッセージ(イースターエッグ) ───────── */
+/* ───────── 隠しチケット(当日ふたりに見せる当たり券) ───────── */
 #secret{
   position:fixed; inset:0; z-index:900;
   background:rgba(74,15,24,.95);
@@ -543,29 +502,85 @@ footer p{ margin-top:16px; }
   padding:24px;
 }
 #secret.show{ display:flex; }
-.secret-card{
-  width:min(460px,100%);
-  border:1px solid rgba(203,177,112,.6);
-  outline:1px solid rgba(203,177,112,.3); outline-offset:6px;
-  padding:52px 30px; text-align:center; color:#EDE6D2;
+.ticket{
+  width:min(400px,100%);
+  position:relative;
+  background:var(--paper);
+  color:var(--ink);
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow:0 24px 60px rgba(0,0,0,.4);
 }
-.secret-card .en-title{
-  font-family:'Cormorant Garamond', serif; font-style:italic;
-  font-size:22px; color:var(--gold-light);
+@media (prefers-reduced-motion: no-preference){
+  #secret.show .ticket{ animation:ticketPop .5s cubic-bezier(.2,.9,.3,1.2) both; }
+  @keyframes ticketPop{ from{ opacity:0; transform:translateY(20px) scale(.94); } to{ opacity:1; transform:none; } }
 }
-.secret-card p{ margin-top:18px; font-size:13.5px; line-height:2.2; }
-.secret-card .formula{
+/* 上段:深紅の見出し帯 */
+.ticket-top{
+  background:var(--wine);
+  color:#F3EDDD;
+  padding:26px 24px 22px;
+  text-align:center;
+}
+.ticket-eyebrow{
   font-family:'Cormorant Garamond', serif;
-  font-size:19px; margin-top:20px; color:var(--gold-light); letter-spacing:.05em;
+  font-size:12px; letter-spacing:.4em; text-indent:.4em;
+  color:var(--gold-light);
+  text-transform:uppercase;
+}
+.ticket-title{
+  margin-top:8px;
+  font-size:19px; font-weight:600; letter-spacing:.14em;
+}
+.ticket-title-en{
+  margin-top:4px;
+  font-family:'Cormorant Garamond', serif; font-style:italic;
+  font-size:15px; color:rgba(243,237,221,.75);
+}
+/* ミシン目(破線)+左右のノッチ */
+.ticket-perf{
+  position:relative;
+  height:0;
+  border-top:2px dashed rgba(169,135,63,.5);
+  margin:0 16px;
+}
+.ticket-perf::before, .ticket-perf::after{
+  content:"";
+  position:absolute; top:50%; transform:translateY(-50%);
+  width:28px; height:28px; border-radius:50%;
+  background:rgba(74,15,24,.95);   /* 背景と同色でくり抜きに見せる */
+}
+.ticket-perf::before{ left:-30px; }
+.ticket-perf::after{ right:-30px; }
+/* 下段:本文 */
+.ticket-body{
+  padding:26px 28px 32px;
+  text-align:center;
+}
+.ticket-lead{
+  font-size:14px; font-weight:600; color:var(--wine); letter-spacing:.06em;
+}
+.ticket-text{
+  margin-top:14px;
+  font-size:13px; line-height:2.1; color:var(--ink-soft);
+}
+.ticket-serial{
+  margin-top:20px;
+  font-family:'Cormorant Garamond', serif;
+  font-size:12px; letter-spacing:.3em;
+  color:var(--gold);
+  border-top:1px solid var(--hairline);
+  padding-top:16px;
 }
 .secret-close{
-  margin-top:30px;
-  background:transparent; color:var(--gold-light);
-  border:1px solid rgba(203,177,112,.6);
-  font-family:inherit; font-size:12px; letter-spacing:.25em;
-  padding:10px 32px; cursor:pointer;
+  margin-top:24px;
+  background:transparent; color:var(--wine);
+  border:1px solid rgba(169,135,63,.6);
+  font-family:inherit; font-size:12px; letter-spacing:.2em;
+  padding:11px 34px; cursor:pointer; border-radius:980px;
+  transition:background .25s, color .25s;
 }
-.secret-close:hover{ background:var(--gold-light); color:var(--wine); }
+.secret-close:hover{ background:var(--wine); color:#F3EDDD; }
 </style>
 </head>
 <body>
@@ -590,7 +605,7 @@ footer p{ margin-top:16px; }
   <div class="hero-frame">
     <!-- 背面のバラ曲線ウォーターマーク(JSで描画) -->
     <svg class="hero-rose-bg" id="hero-rose-bg" viewBox="0 0 400 400" aria-hidden="true"></svg>
-    <!-- モノグラム(7回クリックで隠しメッセージ。イニシャルはお名前に合わせて変更) -->
+    <!-- モノグラム(3回タップで隠しチケット。イニシャルはお名前に合わせて変更) -->
     <div class="monogram" id="monogram" title="">K<span style="font-size:.6em;margin:0 2px;">&amp;</span>E</div>
     <div class="hero-sub">Wedding Invitation</div>
     <!-- ▼▼ SAMPLE:お名前を差し替えてください ▼▼ -->
@@ -731,21 +746,6 @@ footer p{ margin-top:16px; }
         <!-- ▲▲ SAMPLE ▲▲ -->
       </div>
     </div>
-  </div>
-</section>
-
-<!-- ═══════════ ふたりのことクイズ ═══════════ -->
-<section style="padding-top:0;">
-  <div class="sheet reveal">
-    <div class="eyebrow">Quiz</div>
-    <h2 class="section-title">ふたりのこと どこまでご存知?</h2>
-    <svg class="mini-rose" viewBox="0 0 160 36" aria-hidden="true"></svg>
-    <p class="quiz-lead">
-      披露宴までの予習にどうぞ<br>
-      全問正解の方には 当日ふたりからちょっとした景品があるかもしれません
-    </p>
-    <div id="quiz-root"></div>
-    <div class="quiz-score" id="quiz-score"></div>
   </div>
 </section>
 
@@ -935,24 +935,27 @@ footer p{ margin-top:16px; }
   </p>
 </footer>
 
-<!-- ═══════════ 隠しメッセージ ═══════════ -->
-<div id="secret" role="dialog" aria-modal="true" aria-label="隠しメッセージ">
-  <div class="secret-card">
-    <div class="en-title">You found it.</div>
-    <!-- ▼▼ SAMPLE:隠しメッセージは自由に書き換えてください ▼▼ -->
-    <p>
-      モノグラムを7回もクリックしてくださったあなたへ<br>
-      ふたりの結婚を 数学的に表現すると──
-    </p>
-    <p class="formula">∫<sub>M</sub> K dA + ∫<sub>∂M</sub> k<sub>g</sub> ds = 2πχ(M)</p>
-    <p>
-      どんなに曲がりくねった道のりでも<br>
-      全体として見れば 美しく閉じている(ガウス・ボネの定理)<br>
-      ふたりの歩みも きっとそういうものでありますように<br><br>
-      このメッセージを見つけたことを 当日こっそり新郎に伝えてみてください
-    </p>
-    <!-- ▲▲ SAMPLE ▲▲ -->
-    <button class="secret-close" id="secret-close">とじる</button>
+<!-- ═══════════ 隠しチケット(当日ふたりに見せる当たり券) ═══════════ -->
+<div id="secret" role="dialog" aria-modal="true" aria-label="隠しチケット">
+  <div class="ticket">
+    <div class="ticket-top">
+      <div class="ticket-eyebrow">Lucky Ticket</div>
+      <!-- ▼▼ SAMPLE:文言は自由に書き換えてください ▼▼ -->
+      <div class="ticket-title">当たり ✦ スペシャルチケット</div>
+      <div class="ticket-title-en">You found the hidden ticket!</div>
+    </div>
+    <div class="ticket-perf"></div>
+    <div class="ticket-body">
+      <p class="ticket-lead">おめでとうございます 🎉</p>
+      <p class="ticket-text">
+        隠れたチケットを見つけたあなたへ。<br>
+        この画面を <b>結婚式当日 新郎または新婦に</b> お見せください。<br>
+        ささやかですが 素敵なプレゼントをお渡しします。
+      </p>
+      <div class="ticket-serial">✦ ADMIT ONE ✦ No. K&amp;E–1128 ✦</div>
+      <!-- ▲▲ SAMPLE ▲▲ -->
+      <button class="secret-close" id="secret-close">とじる</button>
+    </div>
   </div>
 </div>
 
@@ -998,28 +1001,6 @@ const GOOGLE_FORM = {
     message: "entry.6666666666"  // メッセージ      ←差し替え
   }
 };
-
-/* クイズ(問題・選択肢・正解番号(0始まり)・解説は自由に編集してください) */
-const QUIZ = [
-  {
-    q: "ふたりが初めて出会った場所は?",
-    opts: ["友人の結婚式", "職場", "温泉旅館", "書店の数学書コーナー"],
-    answer: 0,
-    note: "正解は「友人の結婚式」。まさか自分たちの番が来るとは…(※サンプルです 実際のエピソードに書き換えてください)"
-  },
-  {
-    q: "新郎が学生時代に夢中になっていた学問は?",
-    opts: ["天文学", "微分幾何学", "考古学", "経済学"],
-    answer: 1,
-    note: "正解は「微分幾何学」。曲がった空間を研究していたのに 恋愛には最短距離で一直線でした"
-  },
-  {
-    q: "ふたりの共通の趣味は?",
-    opts: ["登山", "映画鑑賞", "温泉めぐり", "マラソン"],
-    answer: 2,
-    note: "正解は「温泉めぐり」。関東近郊の温泉はかなり制覇しつつあります おすすめがあればぜひ当日教えてください"
-  }
-];
 
 /* ════════════════════════════════════════════════════════════
    以下はロジック(基本的に編集不要)
@@ -1149,48 +1130,6 @@ document.querySelectorAll(".js-photo-link").forEach(a => { a.href = PHOTO_ALBUM_
   tick();
 })();
 
-/* ── クイズ ── */
-(function(){
-  const root = document.getElementById("quiz-root");
-  const scoreEl = document.getElementById("quiz-score");
-  let answered = 0, correct = 0;
-
-  QUIZ.forEach((item, qi) => {
-    const card = document.createElement("div");
-    card.className = "quiz-card";
-    card.innerHTML =
-      '<div class="quiz-q"><span class="qnum">Q' + (qi + 1) + '.</span>' + item.q + '</div>' +
-      '<div class="quiz-opts"></div>' +
-      '<div class="quiz-note" aria-live="polite"></div>';
-    const optsEl = card.querySelector(".quiz-opts");
-    const noteEl = card.querySelector(".quiz-note");
-
-    item.opts.forEach((opt, oi) => {
-      const b = document.createElement("button");
-      b.type = "button";
-      b.className = "quiz-opt";
-      b.textContent = opt;
-      b.addEventListener("click", () => {
-        card.querySelectorAll(".quiz-opt").forEach((x, xi) => {
-          x.disabled = true;
-          if (xi === item.answer) x.classList.add("correct");
-          else if (xi === oi) x.classList.add("wrong");
-        });
-        if (oi === item.answer) correct++;
-        noteEl.textContent = (oi === item.answer ? "◎ 正解! " : "残念… ") + item.note;
-        answered++;
-        if (answered === QUIZ.length) {
-          scoreEl.textContent = "あなたの正解数:" + correct + " / " + QUIZ.length +
-            (correct === QUIZ.length ? " ── 全問正解!ふたりのことをよくご存知ですね" : " ── 続きは当日の披露宴で");
-          scoreEl.classList.add("show");
-        }
-      });
-      optsEl.appendChild(b);
-    });
-    root.appendChild(card);
-  });
-})();
-
 /* ── RSVPフォーム → Googleフォーム送信 ── */
 (function(){
   const form = document.getElementById("rsvp-form");
@@ -1237,7 +1176,7 @@ document.querySelectorAll(".js-photo-link").forEach(a => { a.href = PHOTO_ALBUM_
   });
 })();
 
-/* ── イースターエッグ:モノグラムを7回クリック ── */
+/* ── 隠しチケット:モノグラムを3回タップ(クリック)で表示 ── */
 (function(){
   const mono = document.getElementById("monogram");
   const secret = document.getElementById("secret");
@@ -1247,7 +1186,7 @@ document.querySelectorAll(".js-photo-link").forEach(a => { a.href = PHOTO_ALBUM_
     count++;
     clearTimeout(timer);
     timer = setTimeout(() => { count = 0; }, 2500);
-    if (count >= 7) { count = 0; secret.classList.add("show"); }
+    if (count >= 3) { count = 0; secret.classList.add("show"); }
   });
   close.addEventListener("click", () => secret.classList.remove("show"));
   secret.addEventListener("click", e => { if (e.target === secret) secret.classList.remove("show"); });

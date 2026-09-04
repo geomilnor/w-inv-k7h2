@@ -702,10 +702,10 @@ footer p{ margin-top:16px; }
         <div class="profile-name">井原 佳祐</div>
         <div class="profile-name-en">IHARA Keisuke</div>
         <p class="profile-bio">
-          1990年生まれ 埼玉県出身<br>
+          1993年生まれ 大分県出身<br>
           大学では数学(微分幾何学)を専攻<br>
-          現在は大学の経営企画部門に勤務<br>
-          趣味は料理と温泉めぐり<br>
+          現在は学校法人の経営企画部門で勤務<br>
+          趣味はマラソンとアイスコーヒー<br>
           休日は関東近郊への小さな旅を楽しんでいます
         </p>
         <div class="profile-word">
@@ -733,15 +733,15 @@ footer p{ margin-top:16px; }
         <div class="profile-name">武笠 江里</div>
         <div class="profile-name-en">MUKASA Eri</div>
         <p class="profile-bio">
-          1992年生まれ 東京都出身<br>
+          1997年生まれ 埼玉県出身<br>
           会社員として勤務しています<br>
-          趣味は読書とカフェめぐり<br>
-          最近はふたりで訪れる温泉宿の<br>
-          開拓に夢中です
+          趣味は食べることと寝ること<br>
+          最近は紅茶の茶葉をワサワサする<br>
+          ことに夢中です
         </p>
         <div class="profile-word">
           <b>ひとこと</b>
-          おいしいごはんと笑顔の絶えない家庭を築いていきたいと思います 当日お会いできるのを楽しみにしております
+          笑顔の絶えない家庭を築いていきたいと思います 当日お会いできるのを楽しみにしております
         </div>
         <!-- ▲▲ SAMPLE ▲▲ -->
       </div>
@@ -763,8 +763,8 @@ footer p{ margin-top:16px; }
         <!-- ▼▼ SAMPLE:時刻を差し替えてください ▼▼ -->
         <div class="info-body">
           2026年11月28日(土)<br>
-          午前11時より<br>
-          <small>受付 午前10時30分</small>
+          午後4時より<br>
+          <small>受付 午後3時50分</small>
           <small style="margin-top:10px;">帝国ホテル 東京 本館<br>東京都千代田区内幸町1-1-1</small>
         </div>
         <!-- ▲▲ SAMPLE ▲▲ -->
@@ -775,8 +775,8 @@ footer p{ margin-top:16px; }
         <!-- ▼▼ SAMPLE:時刻を差し替えてください ▼▼ -->
         <div class="info-body">
           2026年11月28日(土)<br>
-          午後0時30分より<br>
-          <small>受付 午後0時</small>
+          午後5時より<br>
+          <small>受付 午後4時30分より</small>
           <small style="margin-top:10px;">帝国ホテル 東京 本館 宴会場<br>(会場名は当日ご案内いたします)</small>
         </div>
         <!-- ▲▲ SAMPLE ▲▲ -->
@@ -806,7 +806,7 @@ footer p{ margin-top:16px; }
     <p class="rsvp-lead">
       お手数ではございますが<br>
       <!-- ▼▼ SAMPLE:締切日を差し替えてください ▼▼ -->
-      <strong>2026年10月17日(土)</strong>までにご返信くださいますよう<br>
+      <strong>2026年10月25日(日)</strong>までにご返信くださいますよう<br>
       <!-- ▲▲ SAMPLE ▲▲ -->
       お願い申し上げます<br>
       <small>※ご回答内容は新郎新婦のみが確認いたします</small>
@@ -971,11 +971,11 @@ const PASSWORD = "ihara";
    末尾の +09:00 があることで、海外や時刻のずれた端末で見ても
    「日本時間の2026年11月28日11:00」までを正しくカウントします。
    日付・時刻を変える場合は "2026-11-28T11:00:00+09:00" の数字部分だけ書き換えてください。 */
-const WEDDING_DATE = new Date("2026-11-28T11:00:00+09:00"); /* 日本時間 2026年11月28日 11:00 */
+const WEDDING_DATE = new Date("2026-11-28T16:00:00+09:00"); /* 日本時間 2026年11月28日 16:00 */
 
-/* 写真アルバムのURL(写真用Googleフォーム・ハレシェア等の共有リンクに差し替え)
+/* 写真アルバムのURL(写真用Googleフォーム等の共有リンクに差し替え)
    ここを書き換えると「お写真の募集」と送信完了画面の両方のボタンに反映されます */
-const PHOTO_ALBUM_URL = "https://example.com/photo-album"; // ←差し替え
+const PHOTO_ALBUM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSeGbsxKUQrKF_uvHuHrMEriQw_BaZ7BcyOPIYN4C2BLJu8rpA/viewform?usp=header"; // ←差し替え
 
 /* ─────────────────────────────────────────────
    Googleフォーム連携の設定方法
@@ -988,19 +988,19 @@ const PHOTO_ALBUM_URL = "https://example.com/photo-album"; // ←差し替え
       「/viewform」を「/formResponse」に変えたものを指定します
 ─────────────────────────────────────────────── */
 const GOOGLE_FORM = {
-  formAction: "https://docs.google.com/forms/d/e/XXXXXXXXXXXXXXXX/formResponse", // ←差し替え
+  formAction: "https://docs.google.com/forms/d/e/1FAIpQLSf48Puij9Mc73VQpmlnYt7AZz_7bqGFKtTP4aEI3sCum5Ur4w/formResponse", // ←差し替え
   entries: {
-    attend:  "entry.1111111111", // ご出欠          ←差し替え
-    name:    "entry.2222222222", // お名前          ←差し替え
-    kana:    "entry.3333333333", // ふりがな        ←差し替え
-    side:    "entry.4444444444", // ゲスト区分      ←差し替え
-    zip:     "entry.5555555551", // 郵便番号        ←差し替え
-    pref:    "entry.5555555552", // 都道府県        ←差し替え
-    address: "entry.5555555553", // ご住所          ←差し替え
-    email:   "entry.5555555554", // メールアドレス  ←差し替え
-    tel:     "entry.5555555556", // お電話番号      ←差し替え
-    allergy: "entry.5555555555", // アレルギー      ←差し替え
-    message: "entry.6666666666"  // メッセージ      ←差し替え
+    attend:  "entry.997229871", // ご出欠          ←差し替え
+    name:    "entry.197850819", // お名前          ←差し替え
+    kana:    "entry.343152947", // ふりがな        ←差し替え
+    side:    "entry.904869278", // ゲスト区分      ←差し替え
+    zip:     "entry.2089079560", // 郵便番号        ←差し替え
+    pref:    "entry.1009697850", // 都道府県        ←差し替え
+    address: "entry.589087521", // ご住所          ←差し替え
+    email:   "entry.1396524776", // メールアドレス  ←差し替え
+    tel:     "entry.1341093979", // お電話番号      ←差し替え
+    allergy: "entry.2042794273", // アレルギー      ←差し替え
+    message: "entry.1947111843"  // メッセージ      ←差し替え
   }
 };
 

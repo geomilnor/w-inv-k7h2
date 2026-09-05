@@ -314,6 +314,9 @@ section{ padding:88px 0; }
 .photo-slot svg, .photo-slot img{
   width:100%; height:100%; object-fit:cover; display:block;
 }
+/* プロフィール写真のスライドショー(枠の縦横比3:4を保ったままフェード) */
+.photo-slot.slideshow{ aspect-ratio:3/4; }
+.photo-slot.slideshow > .slide{ position:absolute; inset:0; width:100%; height:100%; }
 .profile-role{
   margin-top:24px;
   font-family:'Cormorant Garamond', serif;
@@ -622,10 +625,17 @@ img{
     <div class="hero-names-ja">井原 佳祐 ・ 武笠 江里</div>
     <!-- ▲▲ SAMPLE ▲▲ -->
 
-    <!-- ふたりの写真 -->
-    <div class="hero-photo">
-      <!-- ▼▼ ここを <img src="couple.jpg" alt="ふたりの写真"> に差し替え ▼▼ -->
-      <img src="img-9a1f7e3c5b8d20a4f6e91c7b3d5a8f04.jpg" alt="ふたりの写真">
+    <!-- ふたりの写真(3枚フェード切り替え) -->
+    <div class="hero-photo slideshow" id="slideshow-hero">
+      <!-- ▼▼ 写真を差し替える場合:各 <svg>…</svg> を
+           <img class="slide" src="ファイル名.jpg" alt="ふたりの写真"> に置き換えてください。
+           枚数は増減可(2枚でも4枚でも可)。1枚だけにすると切り替えは止まります。 ▼▼ -->
+      <svg class="slide" src="img-9a1f7e3c5b8d20a4f6e91c7b3d5a8f04.jpg" alt="ふたりの写真1">
+      </svg>
+      <svg class="slide" src="img-9a1f7e3c5b8d20a4f6e91c7b3d5a8f04.jpg" alt="ふたりの写真2">
+      </svg>
+      <svg class="slide" src="img-9a1f7e3c5b8d20a4f6e91c7b3d5a8f04.jpg" alt="ふたりの写真3">
+      </svg>
       <!-- ▲▲ 差し替えここまで ▲▲ -->
     </div>
 
@@ -687,9 +697,15 @@ img{
     <div class="profiles">
       <!-- 新郎 -->
       <div class="profile">
-        <div class="photo-slot">
-          <!-- ▼▼ ここを <img src="groom.jpg" alt="新郎の写真"> に差し替え ▼▼ -->
-          <img src="img-b7f3a91c4e8d6205af13e9c7d84b0f62.jpg" alt="新郎の写真">
+        <div class="photo-slot slideshow" id="slideshow-groom">
+          <!-- ▼▼ 写真を差し替える場合:各 <svg>…</svg> を
+          <img class="slide" src="ファイル名.jpg" alt="新郎の写真"> に置き換えてください。 ▼▼ -->
+          <svg class="slide" src="img-b7f3a91c4e8d6205af13e9c7d84b0f62.jpg" alt="新郎の写真1">
+          </svg>
+          <svg class="slide" src="img-b7f3a91c4e8d6205af13e9c7d84b0f62.jpg" alt="新郎の写真2">
+          </svg>
+          <svg class="slide" src="img-b7f3a91c4e8d6205af13e9c7d84b0f62.jpg" alt="新郎の写真3">
+          </svg>
           <!-- ▲▲ 差し替えここまで ▲▲ -->
         </div>
         <div class="profile-role">Groom</div>
@@ -712,9 +728,15 @@ img{
 
       <!-- 新婦 -->
       <div class="profile">
-        <div class="photo-slot">
-          <!-- ▼▼ ここを <img src="bride.jpg" alt="新婦の写真"> に差し替え ▼▼ -->
-          <img src="img-2d9e4c8a71f5b03d6e8a1c94f7b2e5d0.jpg" alt="新婦の写真">
+        <div class="photo-slot slideshow" id="slideshow-bride">
+          <!-- ▼▼ 写真を差し替える場合:各 <svg>…</svg> を
+               <img class="slide" src="ファイル名.jpg" alt="新婦の写真"> に置き換えてください。 ▼▼ -->
+          <svg class="slide" src="img-2d9e4c8a71f5b03d6e8a1c94f7b2e5d0.jpg" alt="新婦の写真1">
+          </svg>
+          <svg class="slide" src="img-2d9e4c8a71f5b03d6e8a1c94f7b2e5d0.jpg" alt="新婦の写真2">
+          </svg>
+          <svg class="slide" src="img-2d9e4c8a71f5b03d6e8a1c94f7b2e5d0.jpg" alt="新婦の写真3">
+          </svg>
           <!-- ▲▲ 差し替えここまで ▲▲ -->
         </div>
         <div class="profile-role">Bride</div>

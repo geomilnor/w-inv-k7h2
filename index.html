@@ -245,6 +245,18 @@ section{ padding:88px 0; }
 .hero-photo svg, .hero-photo img{
   width:100%; aspect-ratio:4/3; object-fit:cover; display:block;
 }
+/* フェード切り替え(スライドショー)。複数枚を重ねて透明度で入れ替え。
+   確実に高さを保てるよう、コンテナに縦横比を持たせ、各スライドは絶対配置で全面に重ねます。 */
+.slideshow{ position:relative; padding:0; overflow:hidden; }
+.hero-photo.slideshow{ aspect-ratio:4/3; }
+.slideshow > .slide{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  object-fit:cover; display:block;
+  opacity:0;
+  transition:opacity 1.4s ease-in-out;
+}
+.slideshow > .slide.active{ opacity:1; }
 .hero-date{
   margin-top:40px;
   font-family:'Cormorant Garamond', serif;
@@ -631,8 +643,8 @@ img{
            <img class="slide" src="ファイル名.jpg" alt="ふたりの写真"> に置き換えてください。
            枚数は増減可(2枚でも4枚でも可)。1枚だけにすると切り替えは止まります。 ▼▼ -->
       <img class="slide" src="img-9a1f7e3c5b8d20a4f6e91c7b3d5a8f04.jpg" alt="ふたりの写真1">
-      <img class="slide" src="img-9a1f7e3c5b8d20a4f6e91c7b3d5a8f04.jpg" alt="ふたりの写真2">
-      <img class="slide" src="img-9a1f7e3c5b8d20a4f6e91c7b3d5a8f04.jpg" alt="ふたりの写真3">
+      <img class="slide" src="img-4e8c1b7f9a2d60531c8e4a7f2b9d5c30.jpg" alt="ふたりの写真2">
+      <img class="slide" src="img-c3f09a5e7b1d846209f3e8c5a1d7b62e.jpg" alt="ふたりの写真3">
       <!-- ▲▲ 差し替えここまで ▲▲ -->
     </div>
 
@@ -698,8 +710,8 @@ img{
           <!-- ▼▼ 写真を差し替える場合:各 <svg>…</svg> を
           <img class="slide" src="ファイル名.jpg" alt="新郎の写真"> に置き換えてください。 ▼▼ -->
           <img class="slide" src="img-b7f3a91c4e8d6205af13e9c7d84b0f62.jpg" alt="新郎の写真1">
-          <img class="slide" src="img-b7f3a91c4e8d6205af13e9c7d84b0f62.jpg" alt="新郎の写真2">
-          <img class="slide" src="img-b7f3a91c4e8d6205af13e9c7d84b0f62.jpg" alt="新郎の写真3">
+          <img class="slide" src="img-7a2e9c4f1b8d05360e2a9f7c4b1d8e53.jpg" alt="新郎の写真2">
+          <img class="slide" src="img-e1d8b3f6a9c2074508f1e6b3d9a4c72f.jpg" alt="新郎の写真3">
           <!-- ▲▲ 差し替えここまで ▲▲ -->
         </div>
         <div class="profile-role">Groom</div>
@@ -726,8 +738,8 @@ img{
           <!-- ▼▼ 写真を差し替える場合:各 <svg>…</svg> を
                <img class="slide" src="ファイル名.jpg" alt="新婦の写真"> に置き換えてください。 ▼▼ -->
           <img class="slide" src="img-2d9e4c8a71f5b03d6e8a1c94f7b2e5d0.jpg" alt="新婦の写真1">
-          <img class="slide" src="img-2d9e4c8a71f5b03d6e8a1c94f7b2e5d0.jpg" alt="新婦の写真2">
-          <img class="slide" src="img-2d9e4c8a71f5b03d6e8a1c94f7b2e5d0.jpg" alt="新婦の写真3">
+          <img class="slide" src="img-8f3a1e7c5b9d24060a8f3e1c7b5d9a42.jpg" alt="新婦の写真2">
+          <img class="slide" src="img-5b9d2f8a4e7c136089b5d2f8a4e1c703.jpg" alt="新婦の写真3">
           <!-- ▲▲ 差し替えここまで ▲▲ -->
         </div>
         <div class="profile-role">Bride</div>
@@ -1080,6 +1092,26 @@ function addPath(svg, d, stroke, w, opacity){
 
 /* ── 写真アルバムURLの一括適用 ── */
 document.querySelectorAll(".js-photo-link").forEach(a => { a.href = PHOTO_ALBUM_URL; });
+
+/* ── 写真のフェード自動切り替え(スライドショー) ──
+   .slideshow の中の .slide を数秒ごとに順にフェード表示します。
+   切り替え間隔は下の呼び出しの数字(ミリ秒)。3箇所で少しずつずらしています。 */
+function startSlideshow(id, interval){
+  const box = document.getElementById(id);
+  if (!box) return;
+  const slides = box.querySelectorAll(".slide");
+  if (slides.length <= 1) return;          /* 1枚だけなら切り替え不要 */
+  let i = 0;
+  slides[0].classList.add("active");
+  setInterval(() => {
+    slides[i].classList.remove("active");
+    i = (i + 1) % slides.length;
+    slides[i].classList.add("active");
+  }, interval);
+}
+startSlideshow("slideshow-hero",  4500);
+startSlideshow("slideshow-groom", 5000);
+startSlideshow("slideshow-bride", 5500);
 
 /* ── 合言葉ゲート ── */
 (function(){

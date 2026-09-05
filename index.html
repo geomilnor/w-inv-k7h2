@@ -581,6 +581,15 @@ footer p{ margin-top:16px; }
   transition:background .25s, color .25s;
 }
 .secret-close:hover{ background:var(--wine); color:#F3EDDD; }
+  
+  /* 画像の長押しメニュー・選択・ドラッグを抑止 */
+img{
+  -webkit-touch-callout: none;   /* iOSの長押しメニュー抑止 */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;          /* 画像へのタップ操作自体を無効化 */
+}
 </style>
 </head>
 <body>
@@ -1172,6 +1181,19 @@ document.querySelectorAll(".js-photo-link").forEach(a => { a.href = PHOTO_ALBUM_
   });
   close.addEventListener("click", () => secret.classList.remove("show"));
   secret.addEventListener("click", e => { if (e.target === secret) secret.classList.remove("show"); });
+})();
+</script>
+  <script>
+/* ── 画像の右クリック・長押し保存を抑止(完全な防止ではありません) ── */
+(function(){
+  /* 画像上での右クリックメニューを無効化 */
+  document.addEventListener("contextmenu", function(e){
+    if (e.target && e.target.tagName === "IMG") e.preventDefault();
+  });
+  /* 画像のドラッグを無効化(デスクトップでのドラッグ保存対策) */
+  document.addEventListener("dragstart", function(e){
+    if (e.target && e.target.tagName === "IMG") e.preventDefault();
+  });
 })();
 </script>
 </body>

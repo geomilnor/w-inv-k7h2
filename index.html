@@ -17,6 +17,7 @@
   4. Googleフォーム連携  … JS内 GOOGLE_FORM の formAction と entry ID(設定方法もコメント参照)
   5. 写真アルバムのURL   … JS内 PHOTO_ALBUM_URL(全ボタンに一括反映)
   6. 合言葉              … JS内 PASSWORD(現在 "ihara")
+  7. 舞台裏(日記の更新)  … JS内 DIARY の配列の先頭に1件追記してアップロード
   ※ 合言葉はブラウザ側JSでの簡易チェックです。閲覧の心理的ハードルを
      上げる目的のもので、厳密なセキュリティ保護ではありません。
 ════════════════════════════════════════════════════════════════
@@ -509,6 +510,146 @@ footer .en-title{
 }
 footer p{ margin-top:16px; }
 
+/* ───────── ふたりの日記:チラ見せ枠(ヒーロー内) ───────── */
+.diary-teaser{
+  display:block;
+  width:min(440px,100%);
+  margin:44px auto 0;
+  background:var(--paper);
+  border:1px solid var(--hairline);
+  outline:1px solid var(--hairline);
+  outline-offset:4px;
+  padding:22px 24px;
+  cursor:pointer;
+  text-align:center;
+  font-family:inherit;
+  transition:background .3s, transform .2s;
+}
+.diary-teaser:hover, .diary-teaser:focus-visible{ background:#FBF7EC; transform:translateY(-2px); }
+.diary-teaser-label{
+  display:block;
+  font-family:'Cormorant Garamond', serif;
+  font-size:19px; letter-spacing:.3em; text-indent:.3em;
+  color:var(--gold);
+}
+.diary-teaser-label .dl-ja{
+  display:block;
+  margin-top:3px;
+  font-family:'Shippori Mincho', serif;
+  font-size:12px; letter-spacing:.4em; text-indent:.4em;
+  color:var(--wine);
+}
+.diary-teaser-sub{
+  display:block;
+  margin-top:10px;
+  font-size:12px; line-height:1.7; color:var(--ink-soft);
+  letter-spacing:.04em;
+}
+.diary-teaser-latest{
+  display:block;
+  margin-top:12px;
+  font-size:14px; line-height:1.7; color:var(--ink);
+  letter-spacing:.04em;
+}
+.diary-teaser-latest .dt-date{
+  font-family:'Cormorant Garamond', serif; font-style:italic;
+  color:var(--wine); margin-right:8px;
+}
+.diary-teaser-latest .dt-days{
+  display:inline-block; margin-left:8px;
+  font-size:11px; color:var(--gold);
+  border:1px solid rgba(169,135,63,.5); border-radius:980px;
+  padding:1px 10px; letter-spacing:.1em;
+}
+.diary-teaser-cta{
+  display:block;
+  margin-top:14px;
+  font-size:11px; letter-spacing:.2em; color:var(--ink-soft);
+}
+
+/* ───────── ふたりの日記:ポップアップ ───────── */
+#diary{
+  position:fixed; inset:0; z-index:950;
+  background:rgba(74,15,24,.94);
+  display:none; align-items:center; justify-content:center;
+  padding:20px;
+}
+#diary.show{ display:flex; }
+.diary-panel{
+  width:min(560px,100%);
+  max-height:88vh;
+  display:flex; flex-direction:column;
+  background:var(--ivory);
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow:0 24px 60px rgba(0,0,0,.4);
+}
+@media (prefers-reduced-motion: no-preference){
+  #diary.show .diary-panel{ animation:diaryPop .45s cubic-bezier(.2,.9,.3,1.2) both; }
+  @keyframes diaryPop{ from{ opacity:0; transform:translateY(18px) scale(.96); } to{ opacity:1; transform:none; } }
+}
+.diary-head{
+  flex:0 0 auto;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:22px 24px;
+  background:var(--wine); color:#F3EDDD;
+}
+.diary-eyebrow{
+  font-family:'Cormorant Garamond', serif;
+  font-size:11px; letter-spacing:.4em; text-indent:.4em;
+  color:var(--gold-light); text-transform:uppercase;
+}
+.diary-title-ja{ margin-top:4px; font-size:18px; font-weight:600; letter-spacing:.16em; }
+.diary-head-sub{ margin-top:8px; font-size:12px; font-weight:400; line-height:1.6; color:rgba(243,237,221,.72); letter-spacing:.04em; }
+.diary-close{
+  background:transparent; border:none; color:#F3EDDD;
+  font-size:18px; cursor:pointer; padding:6px; line-height:1;
+  opacity:.85; transition:opacity .2s;
+}
+.diary-close:hover{ opacity:1; }
+.diary-list{
+  flex:1 1 auto;
+  overflow-y:auto;
+  padding:8px 24px 28px;
+  -webkit-overflow-scrolling:touch;
+}
+.diary-entry{
+  padding:26px 0;
+  border-bottom:1px solid var(--hairline);
+}
+.diary-entry:last-child{ border-bottom:none; }
+.diary-entry-date{
+  font-family:'Cormorant Garamond', serif; font-style:italic;
+  font-size:15px; color:var(--gold);
+}
+.diary-entry-days{
+  display:inline-block; margin-left:10px;
+  font-size:11px; color:var(--wine);
+  border:1px solid rgba(122,27,42,.4); border-radius:980px;
+  padding:1px 10px; letter-spacing:.08em;
+  font-family:inherit; font-style:normal;
+}
+.diary-entry-title{
+  margin-top:8px;
+  font-size:17px; font-weight:600; color:var(--wine); letter-spacing:.06em;
+}
+.diary-entry-photo{
+  margin-top:14px;
+  border:1px solid var(--hairline);
+  padding:6px; background:var(--paper);
+}
+.diary-entry-photo img{
+  width:100%; display:block; object-fit:cover;
+}
+.diary-entry-text{
+  margin-top:14px;
+  font-size:14px; line-height:2.05; color:var(--ink);
+}
+.diary-empty{
+  text-align:center; color:var(--ink-soft);
+  font-size:14px; padding:40px 0;
+}
+
 /* ───────── 隠しチケット(当日ふたりに見せる当たり券) ───────── */
 #secret{
   position:fixed; inset:0; z-index:900;
@@ -655,6 +796,16 @@ img{
       <line x1="74" y1="7" x2="120" y2="7" stroke="#A9873F" stroke-width="1"/>
       <path d="M60 1 L66 7 L60 13 L54 7 Z" fill="none" stroke="#A9873F" stroke-width="1"/>
     </svg>
+
+    <!-- 舞台裏(最新をチラ見せ / タップで全件ポップアップ)。中身はJS内 DIARY で管理 -->
+    <button class="diary-teaser" id="diary-teaser" type="button" aria-haspopup="dialog">
+      <span class="diary-teaser-label">Backstage<span class="dl-ja">舞 台 裏</span></span>
+      <!-- ▼▼ SAMPLE:サブタイトルはお好みで書き換えてください ▼▼ -->
+      <span class="diary-teaser-sub">招待状には載せられない、準備の裏側を。</span>
+      <!-- ▲▲ SAMPLE ▲▲ -->
+      <span class="diary-teaser-latest" id="diary-teaser-latest"></span>
+      <span class="diary-teaser-cta">タップして読む ＋</span>
+    </button>
   </div>
 </header>
 
@@ -973,6 +1124,25 @@ img{
   </div>
 </div>
 
+<!-- ═══════════ 舞台裏 Backstage(ポップアップ) ═══════════ -->
+<div id="diary" role="dialog" aria-modal="true" aria-label="舞台裏 — 準備の裏側">
+  <div class="diary-panel">
+    <div class="diary-head">
+      <div>
+        <div class="diary-eyebrow">Backstage</div>
+        <div class="diary-title-ja">舞台裏</div>
+        <!-- ▼▼ SAMPLE:サブタイトルはお好みで書き換えてください ▼▼ -->
+        <div class="diary-head-sub">招待状には載せられない、準備の裏側を。</div>
+        <!-- ▲▲ SAMPLE ▲▲ -->
+      </div>
+      <button class="diary-close" id="diary-close" aria-label="閉じる">✕</button>
+    </div>
+    <div class="diary-list" id="diary-list">
+      <!-- 投稿はJS内 DIARY からここに自動生成されます -->
+    </div>
+  </div>
+</div>
+
 <script>
 /* ════════════════════════════════════════════════════════════
    設定(ここを書き換えるだけで主要な内容を変更できます)
@@ -990,6 +1160,21 @@ const WEDDING_DATE = new Date("2026-11-28T16:00:00+09:00"); /* 日本時間 2026
 /* 写真アルバムのURL(写真用Googleフォーム等の共有リンクに差し替え)
    ここを書き換えると「お写真の募集」と送信完了画面の両方のボタンに反映されます */
 const PHOTO_ALBUM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSeGbsxKUQrKF_uvHuHrMEriQw_BaZ7BcyOPIYN4C2BLJu8rpA/viewform?usp=header"; // ←差し替え
+
+/* ═══ ふたりの日記 ═══
+   ここに投稿を追記していきます。新しい投稿を「配列のいちばん上」に足すだけで、
+   トップのチラ見せ枠(最新1件)とポップアップ(全件)が自動更新されます。
+   ・date : "2026-09-06" の形式(年-月-日)。残り日数はこの日付から自動計算されます。
+   ・title: 見出し(短め)
+   ・text : 本文(改行したい所は \n を入れてください)
+   ・photo: 写真のファイル名(index.htmlと同じ場所に置く)。写真なしの回は "" にするか photo の行ごと削除。
+   1件分のひな形(コピーして使ってください):
+     { date:"2026-09-06", title:"見出し", text:"本文", photo:"img-xxxx.jpg" },
+*/
+const DIARY = [
+  { date:"2026-09-01", title:"招待状ページを公開しました", text:"みなさまにご報告できる日が近づいてきて、ふたりともわくわくしています。\nこのページでは、当日までの準備の様子を少しずつお届けしていきます。ときどき覗きに来てもらえたら嬉しいです。", photo:"img-diary-sample01.jpg" },
+  { date:"2026-08-20", title:"会場の下見に行ってきました", text:"帝国ホテルさんへ打ち合わせに。天井の高い会場に、ふたりとも背筋が伸びる思いでした。当日を想像して、いっそう楽しみになりました。", photo:"" },
+];
 
 /* ─────────────────────────────────────────────
    Googleフォーム連携の設定方法
@@ -1092,6 +1277,68 @@ function addPath(svg, d, stroke, w, opacity){
 
 /* ── 写真アルバムURLの一括適用 ── */
 document.querySelectorAll(".js-photo-link").forEach(a => { a.href = PHOTO_ALBUM_URL; });
+
+/* ── ふたりの日記(チラ見せ枠 + ポップアップ全件) ── */
+(function(){
+  const teaser = document.getElementById("diary-teaser");
+  const teaserLatest = document.getElementById("diary-teaser-latest");
+  const modal = document.getElementById("diary");
+  const list = document.getElementById("diary-list");
+  const closeBtn = document.getElementById("diary-close");
+  if (!teaser || !modal || !list) return;
+
+  /* 投稿日から挙式日までの残り日数。投稿日基準で「あと◯日」を表示 */
+  function daysToWedding(dateStr){
+    const d = new Date(dateStr + "T00:00:00+09:00");
+    const diff = WEDDING_DATE - d;
+    return Math.max(0, Math.ceil(diff / 864e5));
+  }
+  function fmtDate(dateStr){
+    const [y,m,d] = dateStr.split("-");
+    return y + "." + m + "." + d;
+  }
+  function esc(s){ return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+  function textToHtml(s){ return esc(s).replace(/\n/g, "<br>"); }
+
+  /* 日付の新しい順に並べ替え(入力順に依存しないよう保険) */
+  const entries = DIARY.slice().sort((a,b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+
+  /* チラ見せ枠(最新1件) */
+  if (entries.length === 0){
+    teaser.style.display = "none";
+  } else {
+    const top = entries[0];
+    teaserLatest.innerHTML =
+      '<span class="dt-date">' + fmtDate(top.date) + '</span>' + esc(top.title) +
+      '<span class="dt-days">あと' + daysToWedding(top.date) + '日</span>';
+  }
+
+  /* ポップアップ全件 */
+  if (entries.length === 0){
+    list.innerHTML = '<p class="diary-empty">日記はまもなく更新されます。</p>';
+  } else {
+    list.innerHTML = entries.map(e => {
+      const days = daysToWedding(e.date);
+      const photo = e.photo
+        ? '<div class="diary-entry-photo"><img src="' + esc(e.photo) + '" alt="' + esc(e.title) + '" loading="lazy"></div>'
+        : '';
+      return '<article class="diary-entry">' +
+        '<div class="diary-entry-date">' + fmtDate(e.date) +
+          '<span class="diary-entry-days">結婚式まであと' + days + '日</span></div>' +
+        '<div class="diary-entry-title">' + esc(e.title) + '</div>' +
+        photo +
+        '<div class="diary-entry-text">' + textToHtml(e.text) + '</div>' +
+      '</article>';
+    }).join("");
+  }
+
+  function open(){ modal.classList.add("show"); list.scrollTop = 0; }
+  function close(){ modal.classList.remove("show"); }
+  teaser.addEventListener("click", open);
+  closeBtn.addEventListener("click", close);
+  modal.addEventListener("click", e => { if (e.target === modal) close(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") close(); });
+})();
 
 /* ── 写真のフェード自動切り替え(スライドショー) ──
    .slideshow の中の .slide を数秒ごとに順にフェード表示します。

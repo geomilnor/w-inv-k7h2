@@ -855,7 +855,7 @@ img{
 
       <div class="field">
         <label class="field-label" for="f-zip">郵便番号 <span class="req">必須</span></label>
-        <input type="text" id="f-zip" name="zip" inputmode="numeric" autocomplete="postal-code" placeholder="例:100-0011" required>
+        <input type="text" id="f-zip" name="zip" inputmode="numeric" autocomplete="postal-code" placeholder="数字のみ入力(例:1000011)" maxlength="8" required>
       </div>
 
       <div class="field">
@@ -890,7 +890,7 @@ img{
 
       <div class="field">
         <label class="field-label" for="f-tel">お電話番号 <span class="req">必須</span></label>
-        <input type="tel" id="f-tel" name="tel" inputmode="tel" autocomplete="tel" placeholder="例:090-1234-5678" required>
+        <input type="tel" id="f-tel" name="tel" inputmode="numeric" autocomplete="tel" placeholder="数字のみ入力(例:09012345678)" maxlength="13" required>
       </div>
 
       <div class="field">
@@ -1239,6 +1239,40 @@ startSlideshow("slideshow-bride", 5500);
   document.addEventListener("dragstart", function(e){
     if (e.target && e.target.tagName === "IMG") e.preventDefault();
   });
+})();
+/* ── 郵便番号・電話番号に自動でハイフンを挿入 ── */
+(function(){
+  /* 郵便番号:3桁 + 4桁 → 123-4567 */
+  const zip = document.getElementById("f-zip");
+  if (zip) {
+    zip.addEventListener("input", () => {
+      let n = zip.value.replace(/[^0-9]/g, "").slice(0, 7);  /* 数字だけ7桁まで */
+      if (n.length > 3) n = n.slice(0, 3) + "-" + n.slice(3);
+      zip.value = n;
+    });
+  }
+
+  /* 電話番号:桁数から携帯/固定を判定してハイフンを挿入 */
+  const tel = document.getElementById("f-tel");
+  if (tel) {
+    tel.addEventListener("input", () => {
+      let n = tel.value.replace(/[^0-9]/g, "").slice(0, 11);  /* 数字だけ11桁まで */
+      if (n.startsWith("0120") && n.length > 4) {
+        /* フリーダイヤル 0120-XXX-XXX */
+        n = n.replace(/^(\d{4})(\d{1,3})(\d{0,3}).*$/, (m,a,b,c) => c ? `${a}-${b}-${c}` : `${a}-${b}`);
+      } else if ((n.startsWith("070") || n.startsWith("080") || n.startsWith("090")) && n.length > 3) {
+        /* 携帯 090-XXXX-XXXX */
+        n = n.replace(/^(\d{3})(\d{1,4})(\d{0,4}).*$/, (m,a,b,c) => c ? `${a}-${b}-${c}` : `${a}-${b}`);
+      } else if (n.startsWith("03") || n.startsWith("06")) {
+        /* 東京03・大阪06など2桁市外局番 03-XXXX-XXXX */
+        if (n.length > 2) n = n.replace(/^(\d{2})(\d{1,4})(\d{0,4}).*$/, (m,a,b,c) => c ? `${a}-${b}-${c}` : `${a}-${b}`);
+      } else if (n.length > 3) {
+        /* その他の固定電話 0XX-XXX-XXXX(概ねの区切り) */
+        n = n.replace(/^(\d{3})(\d{1,3})(\d{0,4}).*$/, (m,a,b,c) => c ? `${a}-${b}-${c}` : `${a}-${b}`);
+      }
+      tel.value = n;
+    });
+  }
 })();
 </script>
 </body>
